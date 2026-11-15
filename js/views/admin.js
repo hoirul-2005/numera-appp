@@ -44,7 +44,7 @@
     soal() {
       const q = N.db.get('questions', []).filter((x) => soalFilter === 'semua' || x.kind === soalFilter);
       return `<div class="row between"><div class="chips" id="sf">${['semua', 'latihan', 'evaluasi'].map((k) => `<button class="chip ${soalFilter === k ? 'on' : ''}" data-sf="${k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div><button class="btn btn-g" data-add>➕ Tambah Soal</button></div>
-        <div class="tw" style="margin-top:12px"><table><thead><tr><th>Jenis</th><th>Soal</th><th>Jawaban benar</th><th>Aksi</th></tr></thead><tbody>${q.map((x) => `<tr><td><span class="pill">${x.kind}</span></td><td>${N.esc(x.q)}</td><td>${N.esc(x.options[x.answer])}</td><td><button type="button" class="btn btn-sm btn-b" data-edit="${x.id}">✏️</button><button type="button" class="btn btn-sm btn-r" data-del="${x.id}">🗑️</button></td></tr>`).join('') || '<tr><td colspan="4">Belum ada soal.</td></tr>'}</tbody></table></div>`;
+        <div class="tw" style="margin-top:12px"><table><thead><tr><th>Jenis</th><th>Soal</th><th>Jawaban benar</th><th>Aksi</th></tr></thead><tbody>${q.map((x) => `<tr><td><span class="pill">${x.kind}</span>${x.type === 'essay' ? '<br><small>Essay</small>' : ''}</td><td>${N.esc(x.q)}</td><td>${x.type === 'essay' ? N.esc(x.answer || '—') : N.esc(x.options[x.answer])}</td><td><button type="button" class="btn btn-sm btn-b" data-edit="${x.id}">✏️</button><button type="button" class="btn btn-sm btn-r" data-del="${x.id}">🗑️</button></td></tr>`).join('') || '<tr><td colspan="4">Belum ada soal.</td></tr>'}</tbody></table></div>`;
     },
     nilai() {
       const rows = recap();
@@ -115,22 +115,47 @@
 
   const formSoal = (item) => {
     const o = item ? item.options : ['', '', '', ''], L = ['A', 'B', 'C', 'D'];
+    const isEssay = item ? item.type === 'essay' : false;
     const m = N.modal(`<h3>${item ? 'Edit' : 'Tambah'} Soal</h3><form id="mf">
       <label for="k">Jenis</label><select id="k"><option value="latihan" ${item && item.kind === 'latihan' ? 'selected' : ''}>Ayo Berlatih</option><option value="evaluasi" ${item && item.kind === 'evaluasi' ? 'selected' : ''}>Evaluasi</option></select>
+      <label for="qt">Format soal</label><select id="qt"><option value="multiple" ${!isEssay ? 'selected' : ''}>Pilihan ganda</option><option value="essay" ${isEssay ? 'selected' : ''}>Essay</option></select>
+      <label for="g">Tema game</label><select id="g"><option value="Pizza" ${(!item || item.game === 'Pizza') ? 'selected' : ''}>🍕 Pizza</option><option value="Balon" ${item && item.game === 'Balon' ? 'selected' : ''}>🎈 Balon</option><option value="Buah" ${item && item.game === 'Buah' ? 'selected' : ''}>🍓 Buah</option><option value="Kartu" ${item && item.game === 'Kartu' ? 'selected' : ''}>🎲 Kartu</option></select>
       <label for="q">Pertanyaan</label><textarea id="q" required maxlength="400">${N.esc(item ? item.q : '')}</textarea>
-      ${L.map((l, i) => `<label for="o${i}">Pilihan ${l}</label><div class="row" style="flex-wrap:nowrap"><input id="o${i}" required maxlength="80" value="${N.esc(o[i])}"><label style="margin:0;white-space:nowrap"><input type="radio" name="ans" value="${i}" ${(item ? item.answer : 0) === i ? 'checked' : ''}> benar</label></div>`).join('')}
+      <div id="mc" class="${isEssay ? 'hidden' : ''}">
+        ${L.map((l, i) => `<label for="o${i}">Pilihan ${l}</label><div class="row" style="flex-wrap:nowrap"><input id="o${i}" required maxlength="80" value="${N.esc(o[i])}"><label style="margin:0;white-space:nowrap"><input type="radio" name="ans" value="${i}" ${(item ? item.answer : 0) === i ? 'checked' : ''}> benar</label></div>`).join('')}
+      </div>
+      <div id="es" class="${isEssay ? '' : 'hidden'}">
+        <label for="ea">Jawaban benar essay</label><textarea id="ea" rows="3" maxlength="500" placeholder="Contoh: 1/2">${N.esc(item && item.type === 'essay' ? item.answer || '' : '')}</textarea>
+      </div>
       <label for="x">Pembahasan (opsional)</label><input id="x" maxlength="250" value="${N.esc(item ? item.explain || '' : '')}">
       <label>Gambar pizza (opsional)</label><div class="row"><input id="pn" type="number" min="0" max="12" placeholder="diarsir" style="width:110px" value="${item && item.pizza ? item.pizza[0] : ''}"><span>dari</span><input id="pd" type="number" min="1" max="12" placeholder="potong" style="width:110px" value="${item && item.pizza ? item.pizza[1] : ''}"></div>
       <div id="me"></div><div class="row end" style="margin-top:14px"><button type="button" class="btn" data-c>Batal</button><button class="btn btn-g">Simpan</button></div></form>`);
     const q = (s) => N.$(s, m.el);
+    const toggleType = () => {
+      const essay = q('#qt').value === 'essay';
+      q('#mc').classList.toggle('hidden', essay);
+      q('#es').classList.toggle('hidden', !essay);
+    };
     N.$('[data-c]', m.el).addEventListener('click', m.close);
+    q('#qt').addEventListener('change', toggleType);
     q('#mf').addEventListener('submit', (e) => {
       e.preventDefault();
-      const options = [0, 1, 2, 3].map((i) => q('#o' + i).value.trim());
-      if (new Set(options).size < 4) { q('#me').innerHTML = '<div class="err">Keempat pilihan harus berbeda.</div>'; return; }
+      const type = q('#qt').value, game = q('#g').value;
       const pn = q('#pn').value, pd = q('#pd').value;
       const pizza = pn !== '' && pd !== '' && +pn <= +pd ? [+pn, +pd] : null;
-      const data = { kind: q('#k').value, q: q('#q').value.trim(), options, answer: +q('[name=ans]:checked').value, explain: q('#x').value.trim(), pizza };
+      if (type === 'essay') {
+        const answer = q('#ea').value.trim();
+        if (!answer) { q('#me').innerHTML = '<div class="err">Jawaban essay harus diisi.</div>'; return; }
+        const data = { kind: q('#k').value, q: q('#q').value.trim(), options: [], answer, explain: q('#x').value.trim(), pizza, type: 'essay', game };
+        const list = N.db.get('questions', []);
+        if (item) { Object.assign(list.find((x) => x.id === item.id), data); N.audit('edit_soal', data.q.slice(0, 40)); }
+        else { list.push({ id: N.uid(), ...data }); N.audit('tambah_soal', data.q.slice(0, 40)); }
+        N.db.set('questions', list); m.close(); N.toast('Soal disimpan.'); draw();
+        return;
+      }
+      const options = [0, 1, 2, 3].map((i) => q('#o' + i).value.trim());
+      if (new Set(options).size < 4) { q('#me').innerHTML = '<div class="err">Keempat pilihan harus berbeda.</div>'; return; }
+      const data = { kind: q('#k').value, q: q('#q').value.trim(), options, answer: +q('[name=ans]:checked').value, explain: q('#x').value.trim(), pizza, type: 'multiple', game };
       const list = N.db.get('questions', []);
       if (item) { Object.assign(list.find((x) => x.id === item.id), data); N.audit('edit_soal', data.q.slice(0, 40)); }
       else { list.push({ id: N.uid(), ...data }); N.audit('tambah_soal', data.q.slice(0, 40)); }
