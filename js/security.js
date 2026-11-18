@@ -118,9 +118,9 @@
     },
 
     async register(name, username, pw, role = 'siswa') {
-      const requestedRole = role === 'guru' ? 'guru' : 'siswa';
+      const requestedRole = role === 'admin' ? 'admin' : role === 'guru' ? 'guru' : 'siswa';
       const current = this.current();
-      if (requestedRole === 'guru' && !(current && N.isAdminRole(current.role))) return { error: 'Hanya admin/guru yang bisa menambahkan akun guru.' };
+      if (N.isAdminRole(requestedRole) && !(current && N.isAdminRole(current.role))) return { error: 'Hanya admin/guru yang bisa menambahkan akun admin atau guru.' };
 
       const uname = String(username || '').trim().toLowerCase();
       name = String(name || '').trim();
@@ -130,7 +130,7 @@
       const users = N.db.get('users', []);
       if (users.some((u) => u.username === uname)) return { error: 'Username sudah dipakai, coba yang lain.' };
       const salt = randHex(16);
-      users.push({ id: N.uid(), name, username: uname, role: requestedRole, salt, hash: await sec.hash(pw, salt), mfaSecret: requestedRole === 'guru' ? randHex(10) : null, created: Date.now() });
+      users.push({ id: N.uid(), name, username: uname, role: requestedRole, salt, hash: await sec.hash(pw, salt), mfaSecret: N.isAdminRole(requestedRole) ? randHex(10) : null, created: Date.now() });
       N.db.set('users', users);
       return { ok: true, role: requestedRole };
     }

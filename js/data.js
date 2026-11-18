@@ -6,6 +6,7 @@
   const Q = (kind, q, options, answer, explain, pizza, type = 'multiple', game = 'Pizza') => ({ id: N.uid(), kind, q, options: Array.isArray(options) ? options : [], answer, explain, pizza: pizza || null, type, game });
 
   N.seedContent = function () {
+    N.applyLearningConfig();
     if (!N.db.get('materi')) {
       N.db.set('materi', [
         { id: N.uid(), title: 'Apa itu Pecahan Senilai?', body: 'Pecahan senilai adalah pecahan-pecahan yang tampak berbeda, tetapi nilainya sama. Contohnya 1/2 = 2/4 = 3/6. Jika digambar, bagian yang diarsir luasnya sama besar.', added: Date.now() },

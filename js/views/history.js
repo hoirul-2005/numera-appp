@@ -4,10 +4,14 @@
   const N = window.NUMERA;
 
   N.hist = {
-    forUser(u) { const all = N.db.get('history', []); return u.role === 'guru' ? all : all.filter((h) => h.userId === u.id); },
+    forUser(u) {
+      const all = N.db.get('history', []);
+      if (!u) return all.filter((h) => h.userId === 'guest');
+      return N.isAdminRole(u.role) ? all : all.filter((h) => h.userId === u.id);
+    },
     remove(id, u) {
       const all = N.db.get('history', []), h = all.find((x) => N.sameId(x.id, id));
-      if (!h || !u || (u.role !== 'guru' && h.userId !== u.id)) return false; // RBAC: siswa hanya boleh menghapus miliknya
+      if (!h || (u ? (!N.isAdminRole(u.role) && h.userId !== u.id) : h.userId !== 'guest')) return false; // pengguna tanpa login hanya boleh menghapus riwayat di perangkat ini
       N.db.set('history', all.filter((x) => !N.sameId(x.id, id)));
       N.audit('hapus_riwayat', `${h.username} ${h.type} ${h.score}`);
       return true;
@@ -33,15 +37,15 @@
 
   N.views.riwayat = {
     render() {
-      const u = N.auth.current(), list = N.hist.forUser(u), guru = u.role === 'guru';
+      const u = N.auth.current(), list = N.hist.forUser(u), guru = !!u && N.isAdminRole(u.role);
       const best = list.length ? Math.max(...list.map((h) => h.score)) : '-';
       return `<h2>📜 Riwayat Kuis ${guru ? '(Semua Siswa)' : ''}</h2>
         <div class="row between" style="margin-bottom:14px"><div class="row"><span class="pill">Percobaan: ${list.length}</span><span class="pill ok">Nilai tertinggi: ${best}</span></div>${N.exp.buttons()}</div>
         ${N.hist.table(list, guru)}`;
     },
     mount(root) {
-      const u = N.auth.current();
-      N.exp.bind(root, 'riwayat-kuis', 'Riwayat Kuis NUMERA', () => N.hist.rows(N.hist.forUser(u), u.role === 'guru'));
+      const u = N.auth.current(), guru = !!u && N.isAdminRole(u.role);
+      N.exp.bind(root, 'riwayat-kuis', 'Riwayat Kuis NUMERA', () => N.hist.rows(N.hist.forUser(u), guru));
       N.hist.bindDelete(root, () => N.render());
     }
   };

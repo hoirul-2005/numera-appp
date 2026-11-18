@@ -14,6 +14,21 @@
   N.shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   N.KKM = 75; // Kriteria Ketuntasan Minimal
   N.EVAL_COUNT = 5;
+  const LEARNING_DEFAULTS = {
+    appName: 'NUMERA', subjectName: 'Matematika', gradeName: 'Kelas IV', kkm: 75, evalCount: 5,
+    themes: [
+      { id: 'Pizza', name: 'Pizza', icon: '🍕', plural: 'pizza', title: 'Berbagi Pizza' },
+      { id: 'Balon', name: 'Balon', icon: '🎈', plural: 'balon', title: 'Berbagi Balon' },
+      { id: 'Buah', name: 'Buah', icon: '🍎', plural: 'buah apel', title: 'Berbagi Buah' },
+      { id: 'Kartu', name: 'Kartu', icon: '🃏', plural: 'kartu', title: 'Berbagi Kartu' }
+    ],
+    operations: [
+      { id: 'tambah', label: 'Tambah', sign: '+', icon: '➕', a: 3, b: 2, story: 'Gabungkan 3 benda dan 2 benda. Semuanya ada 5!' },
+      { id: 'kurang', label: 'Kurang', sign: '−', icon: '➖', a: 5, b: 2, story: 'Ada 5 benda. Diambil 2. Sisanya 3!' },
+      { id: 'kali', label: 'Kali', sign: '×', icon: '✖️', a: 3, b: 2, story: 'Ada 3 kelompok. Tiap kelompok berisi 2 benda. Semuanya ada 6!' },
+      { id: 'bagi', label: 'Bagi', sign: '÷', icon: '➗', a: 6, b: 2, story: 'Ada 6 benda untuk 2 anak. Setiap anak mendapat 3!' }
+    ]
+  };
 
   /* ---------- Penyimpanan terstruktur (localStorage) ---------- */
   const P = 'numera.';
@@ -22,6 +37,20 @@
     set(k, v) { try { localStorage.setItem(P + k, JSON.stringify(v)); return true; } catch (e) { console.error(e); return false; } },
     remove(k) { localStorage.removeItem(P + k); }
   };
+  N.learningConfig = () => {
+    const saved = N.db.get('learningConfig', {});
+    return { ...LEARNING_DEFAULTS, ...saved,
+      themes: Array.isArray(saved.themes) && saved.themes.length ? saved.themes : LEARNING_DEFAULTS.themes,
+      operations: Array.isArray(saved.operations) && saved.operations.length ? saved.operations : LEARNING_DEFAULTS.operations };
+  };
+  N.applyLearningConfig = () => {
+    const config = N.learningConfig();
+    const kkm = Number(config.kkm), evalCount = Number(config.evalCount);
+    N.KKM = Number.isFinite(kkm) ? Math.max(0, Math.min(100, kkm)) : 75;
+    N.EVAL_COUNT = Number.isFinite(evalCount) ? Math.max(1, Math.min(100, evalCount)) : 5;
+    return config;
+  };
+  N.learningTheme = (id) => N.learningConfig().themes.find((theme) => theme.id === id) || N.learningConfig().themes[0];
 
   /* ---------- Penyimpanan berkas besar (IndexedDB) ---------- */
   N.media = {

@@ -1,4 +1,4 @@
-/* NUMERA – Kuis: Ayo Berlatih & Evaluasi (dilindungi login) */
+/* NUMERA – Kuis: Ayo Berlatih & Evaluasi (dapat dimainkan tanpa login) */
 (function () {
   'use strict';
   const N = window.NUMERA;
@@ -10,9 +10,10 @@
 
   function build(kind) {
     const bank = N.db.get('questions', []).filter((q) => q.kind === kind);
-    return N.shuffle(bank).slice(0, CFG[kind].count).map((q) => {
-      const essay = q.type === 'essay' || !Array.isArray(q.options) || !q.options.length;
-      if (essay) return { q: q.q, explain: q.explain, pizza: q.pizza, type: 'essay', answer: String(q.answer ?? '').trim(), game: q.game || 'Pizza' };
+    const count = kind === 'evaluasi' ? N.EVAL_COUNT : CFG[kind].count;
+    return N.shuffle(bank).slice(0, count).map((q) => {
+      const essay = q.type === 'essay' || q.type === 'short' || !Array.isArray(q.options) || !q.options.length;
+      if (essay) return { q: q.q, explain: q.explain, pizza: q.pizza, type: q.type === 'short' ? 'short' : 'essay', answer: String(q.answer ?? '').trim(), game: q.game || 'Pizza' };
       const opts = N.shuffle(q.options.map((t, i) => ({ t, ok: i === q.answer })));
       return { q: q.q, opts, explain: q.explain, pizza: q.pizza, type: 'multiple', answer: q.answer, game: q.game || 'Pizza' };
     });
@@ -34,11 +35,12 @@
     return {
       render() {
         const u = N.auth.current();
+        const intro = kind === 'evaluasi' ? `Kerjakan ${N.EVAL_COUNT} soal. Format soal bisa berupa pilihan ganda, benar/salah, isian singkat, atau uraian. Nilai tuntas minimal ${N.KKM}.` : cfg.intro;
         const last = u && u.role === 'siswa' ? N.db.get('history', []).filter((h) => h.userId === u.id && h.type === cfg.label)[0] : null;
         const n = N.db.get('questions', []).filter((q) => q.kind === kind).length;
         return `<h2>${cfg.title}</h2><div class="card qcard center" id="qbox">
-          <div style="font-size:4rem">${kind === 'latihan' ? '🎯' : '🏆'}</div><p style="font-size:1.25rem">${cfg.intro}</p>
-          ${u && u.role === 'guru' ? '<div class="info">Anda masuk sebagai guru: ini mode pratinjau, hasil tidak disimpan.</div>' : ''}
+          <div style="font-size:4rem">${kind === 'latihan' ? '🎯' : '🏆'}</div><p style="font-size:1.25rem">${intro}</p>
+          ${u && N.isAdminRole(u.role) ? '<div class="info">Anda masuk sebagai admin: ini mode pratinjau, hasil tidak disimpan.</div>' : ''}
           ${last ? `<p class="muted">Terakhir: nilai <b>${last.score}</b> (${N.esc(last.status)}) · ${N.fmtDate(last.t)}</p>` : ''}
           ${n ? `<button class="btn btn-y btn-big" id="go">▶️ Mulai</button>` : '<div class="err">Bank soal masih kosong. Hubungi guru.</div>'}
         </div>`;
@@ -63,15 +65,15 @@
         <div class="prog"><i style="width:${(i / qs.length) * 100}%"></i></div>
         ${q.pizza ? `<div class="center">${N.pizza(q.pizza[0], q.pizza[1], 110)}</div>` : ''}
         <div class="qtext">${N.esc(q.q)}</div>
-        ${q.type === 'essay' ? `<div class="essay-box"><label for="essay-answer">Jawaban essay</label><textarea id="essay-answer" rows="4" placeholder="Tulis jawabanmu di sini..."></textarea></div>` : `<div class="opts">${q.opts.map((o, k) => `<button class="btn opt" data-k="${k}"><span class="k">${letters[k]}</span> ${N.esc(o.t)}</button>`).join('')}</div>`}
-        <div id="fb" aria-live="polite"></div><div class="row end" style="margin-top:14px">${q.type === 'essay' ? '<button class="btn btn-y" id="check-essay">✅ Cek Jawaban</button>' : ''}<button class="btn btn-y hidden" id="nx">${i === qs.length - 1 ? 'Lihat Hasil 🏁' : 'Soal berikutnya ➡️'}</button></div>`;
-      if (q.type === 'essay') {
+        ${q.type === 'essay' || q.type === 'short' ? `<div class="essay-box"><label for="essay-answer">${q.type === 'short' ? 'Tulis jawaban singkat' : 'Tulis jawabanmu'}</label>${q.type === 'short' ? '<input id="essay-answer" type="text" maxlength="120" placeholder="Ketik jawabanmu...">' : '<textarea id="essay-answer" rows="4" placeholder="Tulis jawabanmu di sini..."></textarea>'}</div>` : `<div class="opts">${q.opts.map((o, k) => `<button class="btn opt" data-k="${k}"><span class="k">${letters[k]}</span> ${N.esc(o.t)}</button>`).join('')}</div>`}
+        <div id="fb" aria-live="polite"></div><div class="row end" style="margin-top:14px">${q.type === 'essay' || q.type === 'short' ? '<button class="btn btn-y" id="check-essay">✅ Cek Jawaban</button>' : ''}<button class="btn btn-y hidden" id="nx">${i === qs.length - 1 ? 'Lihat Hasil 🏁' : 'Soal berikutnya ➡️'}</button></div>`;
+      if (q.type === 'essay' || q.type === 'short') {
         N.$('#check-essay', box).addEventListener('click', () => answerEssay(q));
       } else {
         N.$$('.opt', box).forEach((b) => b.addEventListener('click', () => answer(b, q)));
       }
       N.$('#nx', box).addEventListener('click', () => {
-        if (q.type === 'essay' && !locked) return;
+        if ((q.type === 'essay' || q.type === 'short') && !locked) return;
         N.sfx.click(); if (++i < qs.length) show(); else finish();
       });
     }
@@ -99,9 +101,9 @@
 
     function finish() {
       const total = qs.length, score = Math.round((right / total) * 100), pass = score >= N.KKM;
-      if (user && user.role === 'siswa') {
+      if (!user || user.role === 'siswa') {
         const h = N.db.get('history', []);
-        h.unshift({ id: N.uid(), userId: user.id, username: user.username, name: user.name, type: cfg.label, correct: right, total, score, status: pass ? 'Tuntas' : 'Belum Tuntas', t: Date.now() });
+        h.unshift({ id: N.uid(), userId: user ? user.id : 'guest', username: user ? user.username : 'siswa', name: user ? user.name : 'Siswa', type: cfg.label, correct: right, total, score, status: pass ? 'Tuntas' : 'Belum Tuntas', t: Date.now() });
         N.db.set('history', h);
       }
       pass ? (N.sfx.win(), N.confetti(220)) : N.sfx.click();
@@ -110,8 +112,8 @@
         <div class="score" style="color:${pass ? '#2f9e44' : '#e57d00'}">${score}</div>
         <p style="font-size:1.25rem">Benar <b>${right}</b> dari <b>${total}</b> soal · <span class="pill ${pass ? 'ok' : 'no'}">${pass ? 'Tuntas' : 'Belum Tuntas'}</span></p>
         <p class="muted">Nilai = (${right} ÷ ${total}) × 100</p>
-        ${user && user.role === 'siswa' ? '<p class="muted">✅ Hasil tersimpan di Riwayat.</p>' : '<p class="muted">Mode pratinjau guru: hasil tidak disimpan.</p>'}
-        <div class="row" style="justify-content:center"><button class="btn btn-y" id="again">🔁 Ulangi</button>${user && user.role === 'siswa' ? '<a class="btn btn-b" href="#/riwayat">📜 Lihat Riwayat</a>' : ''}<a class="btn" href="#/materi">📘 Belajar Lagi</a></div>`;
+        ${user && N.isAdminRole(user.role) ? '<p class="muted">Mode pratinjau admin: hasil tidak disimpan.</p>' : '<p class="muted">✅ Hasil tersimpan di Riwayat pada perangkat ini.</p>'}
+        <div class="row" style="justify-content:center"><button class="btn btn-y" id="again">🔁 Ulangi</button>${!user || user.role === 'siswa' ? '<a class="btn btn-b" href="#/riwayat">📜 Lihat Riwayat</a>' : ''}<a class="btn" href="#/materi">📘 Belajar Lagi</a></div>`;
       N.$('#again', box).addEventListener('click', () => run(box, kind));
     }
 

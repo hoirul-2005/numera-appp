@@ -44,8 +44,6 @@
         <button class="btn" data-p="fwd" aria-label="Maju 10 detik">10 ⏩</button>
         <input class="seek" type="range" min="0" max="1000" value="0" aria-label="Posisi video" data-p="seek">
         <span class="time" id="tm">0:00 / 0:00</span>
-        <button class="btn" data-p="mute" aria-label="Bisukan">🔊</button>
-        <input class="vol" type="range" min="0" max="100" value="100" aria-label="Volume" data-p="vol">
         <select data-p="rate" aria-label="Kecepatan" style="width:auto"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
         <button class="btn btn-o" data-p="fs">📽️ Putar di Proyektor</button>
       </div></div>
@@ -62,8 +60,6 @@
     q('back').addEventListener('click', () => { v.currentTime = Math.max(0, v.currentTime - 10); });
     q('fwd').addEventListener('click', () => { v.currentTime = Math.min(v.duration || 1e9, v.currentTime + 10); });
     q('seek').addEventListener('input', (e) => { if (v.duration) v.currentTime = (e.target.value / 1000) * v.duration; });
-    q('vol').addEventListener('input', (e) => { v.volume = e.target.value / 100; v.muted = v.volume === 0; q('mute').textContent = v.muted ? '🔇' : '🔊'; });
-    q('mute').addEventListener('click', () => { v.muted = !v.muted; q('mute').textContent = v.muted ? '🔇' : '🔊'; });
     q('rate').addEventListener('change', (e) => { v.playbackRate = parseFloat(e.target.value); });
     q('fs').addEventListener('click', () => toggleFs(vp));
     const dl = N.$('[data-p=dl]', box); if (dl) dl.addEventListener('click', () => download(it));

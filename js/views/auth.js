@@ -14,9 +14,10 @@
         <div class="info">🧪 <b>Mode demo:</b> kode simulasi saat ini <b id="demo" style="font-size:1.3rem;letter-spacing:3px">${N.auth.mfaDemoCode()}</b> (berganti tiap 30 detik, <span id="rem">${N.sec.totpRemaining()}</span> dtk lagi). Di produksi, kode tidak ditampilkan.</div>
         <form id="f" autocomplete="off"><label for="c">Kode verifikasi</label><input id="c" inputmode="numeric" pattern="\\d{6}" maxlength="6" required autofocus>
         <div id="e" aria-live="polite"></div><div class="row" style="margin-top:14px"><button class="btn btn-y">Verifikasi</button><button type="button" class="btn" id="cancel">Batal</button></div></form></div>`;
-      return `<div class="card formbox"><h2>👋 Masuk ke NUMERA</h2>
-  <form id="f" autocomplete="off"><label for="u">Username</label><input id="u" required maxlength="30" autocomplete="username"><label for="p">Password</label><input id="p" type="password" required autocomplete="current-password">
-  <div id="e" aria-live="polite"></div><div class="row" style="margin-top:14px"><button class="btn btn-y">Masuk</button><a class="btn" href="#/daftar">Daftar Siswa Baru</a></div></form></div>`;
+      return `<div class="card formbox"><h2>🔐 Login Admin</h2>
+  <p>Admin perlu masuk untuk mengelola materi, soal, dan konten belajar. Siswa dapat langsung belajar tanpa login.</p>
+  <form id="f" autocomplete="off"><label for="u">Username admin</label><input id="u" required maxlength="30" autocomplete="username"><label for="p">Password</label><input id="p" type="password" required autocomplete="current-password">
+  <div id="e" aria-live="polite"></div><div class="row" style="margin-top:14px"><button class="btn btn-y">Masuk</button></div></form></div>`;
     },
 
     mount(root) {

@@ -37,10 +37,7 @@
 
   /* ---------- Suara (WebAudio, tanpa berkas) ---------- */
   let actx = null;
-  N.muted = () => N.db.get('muted', false);
-  N.setMuted = (v) => N.db.set('muted', !!v);
   const tone = (f, d, t = 0, type = 'sine', v = 0.18) => {
-    if (N.muted()) return;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       const o = actx.createOscillator(), g = actx.createGain(), s = actx.currentTime + t;
@@ -79,14 +76,29 @@
     let s = `<svg class="pizza ${inter ? 'inter' : ''}" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="Pizza dibagi ${d} bagian, ${set.size} diarsir"><circle cx="${c}" cy="${c}" r="${r + 5}" fill="#E8A44A"/>`;
     for (let i = 0; i < d; i++) {
       const on = set.has(i), cls = `slice ${on ? 'on' : ''}`;
-      if (d === 1) s += `<circle class="${cls}" data-i="0" cx="${c}" cy="${c}" r="${r}"/>`;
+      const keyboard = inter ? `tabindex="0" role="button" aria-label="Bagian ${i + 1} dari ${d}" aria-pressed="${on}"` : '';
+      if (d === 1) s += `<circle class="${cls}" data-i="0" ${keyboard} cx="${c}" cy="${c}" r="${r}"/>`;
       else {
         const a0 = -90 + (i * 360) / d, a1 = -90 + ((i + 1) * 360) / d, [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r);
-        s += `<path class="${cls}" data-i="${i}" d="M${c} ${c}L${x0} ${y0}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}Z"/>`;
+        s += `<path class="${cls}" data-i="${i}" ${keyboard} d="M${c} ${c}L${x0} ${y0}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}Z"/>`;
       }
       if (on) { const [px, py] = pt(d === 1 ? 0 : -90 + ((i + 0.5) * 360) / d, d === 1 ? 0 : r * 0.6); s += `<circle cx="${px}" cy="${py}" r="${size / 24}" fill="#E4572E" pointer-events="none"/>`; }
     }
     return s + '</svg>';
+  };
+  N.themePicture = (theme, n, d, size = 170, inter = false, label = '') => {
+    const item = N.learningTheme(theme);
+    if ((item && item.id === 'Pizza') || theme === 'Pizza') return N.pizza(n, d, size, inter);
+    const icon = item && item.icon || '🍎';
+    const selectedCount = n instanceof Set ? n.size : n;
+    const pieces = Array.from({ length: d }, (_, i) => {
+      const chosen = (n instanceof Set && n.has(i)) || (typeof n === 'number' && i < n);
+      return inter
+        ? `<button type="button" class="story-piece ${chosen ? 'chosen' : ''}" data-i="${i}" aria-pressed="${chosen}" aria-label="Bagian ${i + 1} dari ${d}">${icon}</button>`
+        : `<span class="story-piece ${chosen ? 'chosen' : ''}">${icon}</span>`;
+    }).join('');
+    const role = inter ? 'group' : 'img';
+    return `<div class="story-pieces ${inter ? 'inter' : ''} theme-${String(theme).toLowerCase().replace(/[^a-z0-9_-]/g, '')}" style="--piece-count:${d};--visual-width:${size}px" role="${role}" aria-label="${N.esc(label || `${selectedCount} dari ${d} bagian tema ${item && item.name || theme}`)}">${pieces}</div>`;
   };
   // pecahan berwarna: pembilang kuning, penyebut biru
   N.frac = (n, d, cls = '') => `<span class="frac ${cls}" aria-label="${n} per ${d}"><b class="n">${n}</b><b class="d">${d}</b></span>`;
