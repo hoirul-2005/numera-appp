@@ -24,7 +24,7 @@
         <div class="wrap">
           <div class="hero-copy">
             <span class="eyebrow">✨ ${N.esc(config.mediaLabel)} ${N.esc(config.subjectName)} ${N.esc(config.gradeName)}</span>
-            <h1>Belajar ${N.esc(config.subjectName)} <span class="pop">Jadi Seru!</span></h1>
+            <h1>Selamat datang di <span class="pop">NUMERA</span></h1>
             <p class="lead">${N.esc(config.homeSlogan)}</p>
             <div class="hero-actions"><a class="btn" href="#/cerita">🚀 Mulai Belajar</a><a class="btn white" href="#dunia">Jelajahi Materi</a></div>
           </div>

@@ -3,7 +3,6 @@
   'use strict';
   const N = window.NUMERA;
   const themes = () => N.learningConfig().themes.map((theme) => [theme.id, theme.icon, theme.name]);
-  const operations = () => N.learningConfig().operations;
 
   function themeStorageKey() {
     const user = N.auth.current();
@@ -20,29 +19,27 @@
       const examples = [[1, 2], [2, 4], [3, 6]];
       return `<section class="material-page">
         <header class="material-intro"><span class="eyebrow">📘 Misi ${N.esc(config.subjectName)} ${N.esc(config.gradeName)}</span><h1>${N.esc(config.subjectName)} Seru!</h1>
-          <p>Kita belajar langkah demi langkah. Pilih tanda hitung, lihat gambarnya, lalu coba contoh pecahan.</p></header>
+          <p>Amati gambar pecahan, pahami bagian yang diarsir, lalu coba sendiri dengan tema pilihanmu.</p></header>
 
-        <section class="operation-learning" aria-labelledby="operation-title">
-          <span class="eyebrow">Langkah 1 · 🧩 Pilih operasi</span><h2 id="operation-title">Lihat contoh berhitung</h2>
-          <p>Pilih tanda hitung. Gambar di bawah akan menunjukkan cara menghitungnya.</p>
-          <div class="operation-tabs" role="group" aria-label="Pilih operasi matematika">${operations().map((op, i) => `<button type="button" class="operation-tab ${i === 0 ? 'active' : ''}" data-operation="${op.id}" aria-pressed="${i === 0}">${N.esc(op.icon)} ${N.esc(op.label)}</button>`).join('')}</div>
-          <article class="operation-lesson" id="operation-lesson" aria-live="polite"></article>
-        </section>
+        <section class="material-definition" aria-labelledby="fraction-definition-title"><span aria-hidden="true">📚</span><div><span class="eyebrow">Konsep penting</span><h2 id="fraction-definition-title">Apa itu Pecahan Senilai?</h2><p>Pecahan senilai adalah pecahan-pecahan yang memiliki nilai atau besar bagian yang sama, meskipun ditulis dengan pembilang dan penyebut yang berbeda.</p></div></section>
 
         <div class="material-rule"><span aria-hidden="true">💡</span><p><b>Ingat cara membaca pecahan:</b> angka atas menunjukkan bagian yang diwarnai. Angka bawah menunjukkan jumlah semua potongan. Contoh <b>2/4</b>: 2 potongan diwarnai dari 4 potongan.</p></div>
 
         <form class="story-theme-form material-theme-form" id="material-theme-form">
-          <div><span class="eyebrow">Langkah 2 · 🎨 Pilih gambar</span><label for="material-theme">Pilih tema yang kamu suka</label><p>Gambar pilihanmu akan dipakai pada contoh pecahan.</p></div>
+          <div><span class="eyebrow">🎨 Pilih gambar</span><label for="material-theme">Pilih tema yang kamu suka</label><p>Tema pilihanmu dipakai pada kegiatan latihan.</p></div>
           <div class="story-theme-controls"><select id="material-theme" name="theme">${themes().map(([id, icon, name]) => `<option value="${N.esc(id)}" ${id === activeTheme ? 'selected' : ''}>${N.esc(icon)} ${N.esc(name)}</option>`).join('')}</select><button class="btn" type="submit">Gunakan tema</button></div>
         </form>
 
-        <section class="material-examples"><span class="eyebrow">Langkah 3 · 🍕 Amati gambar</span><h2>Pecahan Senilai</h2><p class="material-hint">Pecahan senilai terlihat berbeda, tetapi menunjukkan bagian yang sama banyak. Bagian berwarna adalah bagian yang kita ambil.</p>
-          <div class="material-example-grid" id="material-examples">${examples.map(([n, d]) => `<article class="material-example">${N.themePicture(activeTheme, n, d, 250, false, `${n} dari ${d} potongan diwarnai`)}<strong>${N.frac(n, d, 'xl')}</strong><p><b>${n} potongan diwarnai</b><br>dari ${d} potongan semuanya</p></article>`).join('')}</div>
-          <div class="material-equality">${N.frac(1, 2)}<span>=</span>${N.frac(2, 4)}<span>=</span>${N.frac(3, 6)}<b>Semua menunjukkan setengah!</b></div>
+        <section class="material-examples"><span class="eyebrow">🍕 Amati gambar</span><h2>Contoh Pecahan Senilai</h2><p class="material-hint">Ketiga gambar berukuran sama. Tekan gambar untuk melihat berapa bagian yang diarsir.</p>
+          <div class="material-example-grid" id="material-examples">${examples.map(([n, d], index) => `<article class="material-example ${index === 0 ? 'selected' : ''}"><button type="button" class="material-example-select" data-example="${index}" aria-pressed="${index === 0}">${N.pizza(n, d, 210)}<strong>${N.frac(n, d, 'xl')}</strong></button><p><b>${n} bagian diarsir</b><br>dari ${d} bagian seluruhnya</p></article>`).join('')}</div>
+          <p class="material-example-explanation" id="material-example-explanation" aria-live="polite">Lingkaran dibagi menjadi 2 bagian sama besar. 1 bagian diarsir, jadi pecahannya 1/2.</p>
+          <div class="material-alignment-guide" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="material-equality">${N.frac(1, 2)}<span>=</span>${N.frac(2, 4)}<span>=</span>${N.frac(3, 6)}<b>Luas yang diarsir sama besar!</b></div>
+          <aside class="material-important"><b>💡 Pesan Penting</b><p>Ingat! Pecahan senilai memiliki nilai yang sama meskipun angka pembilang dan penyebutnya berbeda.</p></aside>
         </section>
 
         <section class="material-practice">
-          <div><span class="eyebrow">Langkah 4 · 🎯 Coba sendiri</span><h2>Warnai setengah gambar</h2><p>Pilih jumlah potongan. Lalu sentuh potongan satu per satu sampai setengahnya berwarna.</p></div>
+          <div><span class="eyebrow">🎯 Coba sendiri</span><h2>Warnai setengah gambar</h2><p>Pilih jumlah potongan. Lalu sentuh potongan satu per satu sampai setengahnya berwarna.</p></div>
           <div class="math-options" id="dchips" role="group" aria-label="Jumlah bagian">${[2, 4, 6, 8].map((d, i) => `<button type="button" class="math-option ${i === 1 ? 'on' : ''}" data-d="${d}" aria-pressed="${i === 1}">${d} bagian</button>`).join('')}</div>
           <div class="material-interactive"><div id="ipz"></div><div><strong id="ifr"></strong><p id="imsg" aria-live="polite"></p></div></div>
         </section>
@@ -52,26 +49,15 @@
     },
     mount(root) {
       let theme = N.$('#material-theme', root).value, d = 4, sel = new Set();
-      let operation = operations()[0];
-      const drawOperation = () => {
-        const icon = N.esc(themes().find(([id]) => id === theme)?.[1] || '🍎');
-        const answer = operation.id === 'tambah' ? operation.a + operation.b : operation.id === 'kurang' ? operation.a - operation.b : operation.id === 'kali' ? operation.a * operation.b : operation.a / operation.b;
-        const items = (count) => `${Array.from({ length: Math.min(count, 12) }, () => `<span aria-hidden="true">${icon}</span>`).join('')}${count > 12 ? `<b class="operation-more">+${count - 12}</b>` : ''}`;
-        const groups = operation.id === 'kali'
-          ? `<div class="operation-groups">${Array.from({ length: Math.min(operation.a, 8) }, (_, i) => `<div class="operation-group"><small>Kelompok ${i + 1}</small><span>${items(operation.b)}</span></div>`).join('')}${operation.a > 8 ? `<p class="operation-more-groups">dan ${operation.a - 8} kelompok lagi</p>` : ''}</div>`
-          : operation.id === 'bagi'
-            ? `<div class="operation-groups">${Array.from({ length: Math.min(operation.b, 8) }, (_, i) => `<div class="operation-group"><small>Anak ${i + 1} mendapat</small><span>${items(operation.a / operation.b)}</span></div>`).join('')}${operation.b > 8 ? `<p class="operation-more-groups">dan ${operation.b - 8} anak lagi mendapat bagian yang sama</p>` : ''}</div>`
-            : `<div class="operation-groups operation-counting">${items(operation.a)}<b class="operation-sign">${operation.id === 'tambah' ? '+' : '−'}</b><span class="${operation.id === 'kurang' ? 'operation-removed' : ''}">${items(operation.b)}</span></div>`;
-        const tip = operation.id === 'tambah' ? `Gabungkan ${operation.a} benda dan ${operation.b} benda.` : operation.id === 'kurang' ? `Mulai dari ${operation.a}, lalu ambil ${operation.b} benda.` : operation.id === 'kali' ? `${operation.a} kelompok, setiap kelompok berisi ${operation.b} benda.` : `Bagikan ${operation.a} benda sama banyak kepada ${operation.b} anak.`;
-        N.$('#operation-lesson', root).innerHTML = `<div class="operation-equation" aria-label="${operation.a} ${N.esc(operation.sign)} ${operation.b} sama dengan ${answer}"><span>${operation.a}</span><span class="operation-symbol">${N.esc(operation.sign)}</span><span>${operation.b}</span><span>=</span><strong>${answer}</strong></div><p class="operation-caption">${N.esc(tip)}</p>${groups}<p class="operation-story">${N.esc(operation.icon)} ${N.esc(operation.story)}</p><p class="operation-tip"><b>Ingat:</b> ${operation.id === 'tambah' ? 'tanda + artinya benda digabung.' : operation.id === 'kurang' ? 'tanda − artinya benda diambil.' : operation.id === 'kali' ? 'tanda × artinya kelompok yang sama dijumlahkan berulang.' : 'tanda ÷ artinya benda dibagi sama banyak.'} Jawabannya <strong>${answer}</strong>.</p>`;
-      };
-      N.$$('.operation-tab', root).forEach((button) => button.addEventListener('click', () => {
-        operation = operations().find((op) => op.id === button.dataset.operation) || operations()[0];
-        N.$$('.operation-tab', root).forEach((tab) => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
-        drawOperation(); N.sfx.click();
-      }));
+      let selectedExample = 0;
       const drawExamples = () => {
-        N.$('#material-examples', root).innerHTML = [[1, 2], [2, 4], [3, 6]].map(([n, den]) => `<article class="material-example">${N.themePicture(theme, n, den, 250, false, `${n} dari ${den} potongan diwarnai`)}<strong>${N.frac(n, den, 'xl')}</strong><p><b>${n} potongan diwarnai</b><br>dari ${den} potongan semuanya</p></article>`).join('');
+        const parts = [[1, 2], [2, 4], [3, 6]];
+        N.$('#material-examples', root).innerHTML = parts.map(([n, den], index) => `<article class="material-example ${selectedExample === index ? 'selected' : ''}"><button type="button" class="material-example-select" data-example="${index}" aria-pressed="${selectedExample === index}">${N.pizza(n, den, 210)}<strong>${N.frac(n, den, 'xl')}</strong></button><p><b>${n} bagian diarsir</b><br>dari ${den} bagian seluruhnya</p></article>`).join('');
+        const [numerator, denominator] = parts[selectedExample];
+        N.$('#material-example-explanation', root).textContent = `Lingkaran dibagi menjadi ${denominator} bagian sama besar. ${numerator} bagian diarsir, jadi pecahannya ${numerator}/${denominator}.`;
+        N.$$('.material-example-select', root).forEach((button) => button.addEventListener('click', () => {
+          selectedExample = Number(button.dataset.example); N.sfx.click(); drawExamples();
+        }));
       };
       const drawInteractive = () => {
         const area = N.$('#ipz', root);
@@ -103,7 +89,7 @@
         event.preventDefault();
         theme = N.$('#material-theme', root).value;
         N.db.set(themeStorageKey(), theme);
-        sel = new Set(); drawExamples(); drawInteractive(); drawOperation();
+        sel = new Set(); drawExamples(); drawInteractive();
         N.toast(`Tema ${theme} dipakai untuk materi dan cerita.`);
       });
       N.$$('#dchips .math-option', root).forEach((button) => button.addEventListener('click', () => {
@@ -115,7 +101,7 @@
         });
         drawInteractive();
       }));
-      drawOperation(); drawInteractive();
+      drawExamples(); drawInteractive();
     }
   };
 })();

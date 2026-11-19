@@ -459,6 +459,11 @@ body[data-font-scale="large"] { font-size: 21px; }
 .material-rule p { font-size: 1.06rem; line-height: 1.55; }
 .material-rule b { color: #38246e; }
 
+.material-definition { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 16px; margin-top: 22px; padding: clamp(18px, 3vw, 26px); border: 3px solid #fff; border-radius: 26px; background: linear-gradient(120deg, #e9f8ff, #f3edff); box-shadow: 0 8px 0 #d8e2f2; }
+.material-definition > span { display: grid; width: 58px; height: 58px; place-items: center; border-radius: 18px; background: #fff; font-size: 2rem; }
+.material-definition h2 { margin: 4px 0 8px; color: #38246e; font: 700 clamp(1.45rem, 4vw, 2rem)/1.15 "Fredoka", system-ui, sans-serif; }
+.material-definition p { max-width: 70ch; font-size: 1.08rem; font-weight: 800; line-height: 1.55; }
+
 .material-examples,
 .material-practice,
 .material-notes,
@@ -504,6 +509,66 @@ body[data-font-scale="large"] { font-size: 21px; }
 .material-example p { margin: 0; color: #555473; font-size: 1rem; line-height: 1.5; }
 .material-example p b { color: #18845a; }
 .material-example .story-pieces { margin-block: 4px 8px; }
+.material-example.selected { border-color: #7a47f5; background: #f6f1ff; box-shadow: 0 5px 0 #d9cdf8; }
+.material-example-select { display: grid; justify-items: center; gap: 6px; width: 100%; padding: 4px; border: 0; border-radius: 16px; background: transparent; color: inherit; cursor: pointer; }
+.material-example-select:hover { background: rgba(255,255,255,.78); }
+.material-example-select:focus-visible { outline: 4px solid #7a47f5; outline-offset: 2px; }
+.material-example-select .pizza { width: min(100%, 210px); }
+.material-example-explanation { min-height: 54px; margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: #f1f8ff; color: #393653; font-weight: 800; text-align: center; }
+.material-alignment-guide { position: relative; display: flex; align-items: center; justify-content: space-between; width: min(76%, 620px); height: 18px; margin: 16px auto 4px; }
+.material-alignment-guide::before { position: absolute; right: 8px; left: 8px; height: 3px; border-radius: 99px; background: #60c58e; content: ""; }
+.material-alignment-guide i { z-index: 1; width: 15px; height: 15px; border: 3px solid #fff; border-radius: 50%; background: #3bb978; box-shadow: 0 0 0 2px #3bb978; }
+.material-important { display: grid; gap: 5px; margin-top: 14px; padding: 16px 20px; border: 2px solid #ffe7a3; border-radius: 18px; background: #fff6cf; color: #433a17; }
+.material-important b { color: #6c5010; font: 700 1.15rem "Fredoka", system-ui, sans-serif; }
+.material-important p { line-height: 1.5; }
+
+.fraction-anatomy { display: grid; grid-template-columns: minmax(0,1fr) minmax(250px,.8fr); align-items: center; gap: 22px; margin: 22px 0; padding: clamp(20px, 4vw, 30px); border: 3px solid #fff; border-radius: 28px; background: linear-gradient(120deg, #fff8db, #f1f8ff); box-shadow: 0 8px 0 #d9e3ef; }
+.fraction-anatomy h2, .equiv-stepper > h2 { margin: 6px 0 8px; color: #38246e; font: 700 clamp(1.5rem, 4vw, 2.1rem)/1.15 "Fredoka", system-ui, sans-serif; }
+.fraction-anatomy > div:first-child p { max-width: 48ch; color: #4e4a6c; font-weight: 700; line-height: 1.5; }
+.anatomy-card { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 18px; border: 2px solid #e3ebf4; border-radius: 22px; background: #fff; }
+.anatomy-fraction { display: grid; justify-items: center; gap: 5px; min-width: 80px; font: 700 2.4rem/1 "Fredoka", system-ui, sans-serif; }
+.anatomy-fraction > i { width: 70px; height: 4px; border-radius: 99px; background: #47445f; }
+.anatomy-numerator { padding: 5px 13px; border-radius: 12px; background: #ffd23f; color: #282744; }
+.anatomy-denominator { padding: 5px 13px; border-radius: 12px; background: #5cc0f5; color: #172b46; }
+.anatomy-key { display: grid; gap: 12px; }
+.anatomy-key > div { display: flex; align-items: center; gap: 10px; }
+.anatomy-badge { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; border-radius: 12px; font: 700 1.1rem "Fredoka", system-ui, sans-serif; }
+.numerator-badge { background: #ffd23f; color: #282744; }
+.denominator-badge { background: #5cc0f5; color: #172b46; }
+.anatomy-key b, .anatomy-key small { display: block; }
+.anatomy-key b { color: #343052; font: 700 1rem "Fredoka", system-ui, sans-serif; }
+.anatomy-key small { color: #68647d; font-size: .82rem; }
+.equiv-stepper { display: grid; gap: 12px; margin-top: 26px; padding: clamp(18px, 4vw, 30px); border: 3px solid #fff; border-radius: 28px; background: linear-gradient(145deg, #f6f1ff, #f1faff); box-shadow: 0 9px 0 #d9d2ec, 0 18px 30px rgba(35,34,77,.09); }
+.equiv-stepper > h2 { margin-top: 0; }
+.equiv-example-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 3px 0 4px; }
+.equiv-example-tab { min-height: 46px; padding: 9px 15px; border: 2px solid #dcd8ec; border-radius: 14px; background: #fff; color: #403b62; font: 700 1rem "Fredoka", system-ui, sans-serif; cursor: pointer; }
+.equiv-example-tab.active { border-color: #7a47f5; background: #7a47f5; color: #fff; }
+.equiv-step-card { padding: clamp(16px, 3vw, 26px); border: 2px solid #e2eaf4; border-radius: 22px; background: #fff; }
+.equiv-step-card .math-progress { margin-bottom: 16px; }
+.equiv-step-visual { display: grid; min-height: 220px; place-items: center; padding: 14px 0 20px; }
+.equiv-working { display: grid; justify-items: center; gap: 18px; width: min(100%, 680px); }
+.equiv-start { display: grid; justify-items: center; gap: 8px; color: #595675; font-weight: 800; }
+.equiv-fraction { display: grid; justify-items: center; gap: 4px; min-width: 72px; font: 700 2.25rem/1 "Fredoka", system-ui, sans-serif; }
+.equiv-fraction > i { width: 64px; height: 4px; border-radius: 99px; background: #4b4965; }
+.equiv-fraction > b { min-width: 50px; padding: 5px 10px; border-radius: 12px; text-align: center; }
+.numerator-number { background: #ffd23f; color: #282744; }
+.denominator-number { background: #5cc0f5; color: #172b46; }
+.equiv-operations { display: grid; gap: 9px; width: min(100%, 590px); }
+.equiv-operation-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 9px; padding: 10px; border-radius: 16px; background: #f7f9fd; }
+.equiv-role { min-width: 90px; color: #504d6d; font-weight: 900; }
+.equiv-number { display: grid; min-width: 38px; min-height: 38px; place-items: center; padding: 5px 9px; border-radius: 11px; font: 700 1.2rem "Fredoka", system-ui, sans-serif; }
+.equiv-times { color: #45415e; font: 800 1.1rem "Fredoka", system-ui, sans-serif; }
+.equiv-arrow { color: #7a47f5; font-size: 1.4rem; font-weight: 900; }
+.equiv-factor { padding: 5px 10px; border: 2px solid #c7b6f6; border-radius: 999px; background: #f0eaff; color: #4f27c4; font: 700 1rem "Fredoka", system-ui, sans-serif; }
+.equiv-final { display: grid; justify-items: center; gap: 6px; padding: 13px 20px; border-radius: 18px; background: #eaf8ef; color: #166b45; text-align: center; }
+.equiv-final strong { font: 700 clamp(1.5rem, 5vw, 2.15rem) "Fredoka", system-ui, sans-serif; }
+.equiv-step-explanation { display: flex; align-items: center; gap: 12px; min-height: 66px; margin: 0; padding: 12px 15px; border-radius: 16px; background: #fff6cf; color: #373451; font-weight: 800; line-height: 1.5; }
+.equiv-step-emoji { flex: 0 0 auto; font-size: 1.6rem; }
+.equiv-step-explanation b { color: #342d57; }
+.fraction-reminder { display: flex; align-items: flex-start; gap: 14px; margin-top: 20px; padding: 18px 22px; border: 3px solid #fff; border-radius: 22px; background: linear-gradient(110deg, #fff0b5, #fff9e6); box-shadow: 0 7px 0 #ead996; }
+.fraction-reminder > span { font-size: 1.8rem; }
+.fraction-reminder b { color: #614912; font: 700 1.2rem "Fredoka", system-ui, sans-serif; }
+.fraction-reminder p { margin-top: 4px; color: #49412c; font-weight: 800; line-height: 1.5; }
 
 .material-equality {
   display: flex;
@@ -989,4 +1054,56 @@ body[data-font-scale="large"] { font-size: 21px; }
   .login-mascot { width: 76px; height: 76px; border-radius: 23px; font-size: 2.6rem; }
   .login-benefits { display: flex; flex-wrap: wrap; justify-content: center; }
   .login-card { padding: 24px 20px; }
+}
+
+/* Guided equivalent-fraction story for class discussion. */
+.story-fraction-lesson { display: grid; gap: 20px; }
+.story-dialogue { position: relative; padding: 22px clamp(18px, 4vw, 30px); border: 3px solid #fff; border-radius: 26px; background: linear-gradient(135deg, #fff5c9, #fff 72%); box-shadow: 0 8px 0 #e8d891, 0 14px 26px rgba(35,34,77,.08); }
+.story-dialogue > span { display: inline-flex; margin-bottom: 10px; padding: 6px 13px; border-radius: 999px; background: #fff; color: #4f27c4; font: 700 1rem "Fredoka", system-ui, sans-serif; }
+.story-dialogue p { font-size: 1.08rem; font-weight: 800; line-height: 1.65; }
+.story-pizza-pair { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+.story-pizza-card { display: grid; justify-items: center; gap: 10px; min-width: 0; padding: 20px; border: 3px solid #fff; border-radius: 26px; background: linear-gradient(150deg, #f1faff, #fff); box-shadow: 0 7px 0 #d8e4f2; text-align: center; }
+.story-pizza-card:nth-child(2) { background: linear-gradient(150deg, #fff4e9, #fff); }
+.story-pizza-card h2 { color: #38246e; font: 700 1.5rem/1.2 "Fredoka", system-ui, sans-serif; }
+.story-pizza-card > p { color: #5b5875; font-weight: 700; }
+.story-pizza-visual { display: grid; width: min(100%, 220px); min-height: 190px; place-items: center; }
+.story-pizza-visual .pizza { width: min(100%, 190px); }
+.story-pizza-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+.story-pizza-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 9px 12px; font-size: 1rem; }
+.story-pizza-actions .btn:disabled { cursor: default; opacity: .58; transform: none; }
+.story-fraction-label { min-height: 26px; color: #4f27c4; font: 700 1.2rem "Fredoka", system-ui, sans-serif; }
+.story-compare-area { display: grid; justify-items: center; gap: 14px; padding: 18px; border-radius: 24px; background: #eef9f2; }
+.story-compare-area > .btn:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+.story-comparison { display: grid; grid-template-columns: minmax(120px,1fr) auto minmax(120px,1fr); align-items: center; justify-items: center; gap: 12px; width: min(100%, 520px); padding: 18px; border: 2px solid #d6efdf; border-radius: 20px; background: #fff; text-align: center; }
+.story-comparison > div { display: grid; justify-items: center; gap: 5px; color: #4f4b6c; font-weight: 800; }
+.story-comparison .pizza { width: min(100%, 142px); }
+.story-comparison > div b { color: #4f27c4; font: 700 1.3rem "Fredoka", system-ui, sans-serif; }
+.story-comparison-equal { color: #18845a; font: 700 2.5rem "Fredoka", system-ui, sans-serif; }
+.story-comparison > p { grid-column: 1 / -1; margin: 4px 0 0; color: #17643f; font-weight: 900; }
+.story-discussion { display: grid; justify-items: start; gap: 12px; padding: clamp(18px, 3vw, 26px); border: 3px solid #fff; border-radius: 26px; background: linear-gradient(135deg, #f1ebff, #f5fbff); box-shadow: 0 7px 0 #d9d2ec; }
+.story-discussion h2 { margin-top: 5px; color: #38246e; font: 700 clamp(1.45rem, 4vw, 2rem) "Fredoka", system-ui, sans-serif; }
+.story-discussion > div:first-child p { margin-top: 5px; color: #5b5875; }
+.story-discussion ol { display: grid; gap: 9px; width: 100%; margin: 0; padding-left: 30px; }
+.story-discussion li { padding: 10px 12px; border-radius: 12px; background: #fff; font-weight: 800; }
+.story-answer { width: 100%; padding: 16px 18px; border: 2px solid #bfe8cf; border-radius: 18px; background: #eaf8ef; color: #175b3a; }
+.story-answer > b { font: 700 1.2rem "Fredoka", system-ui, sans-serif; }
+.story-answer p { margin-top: 5px; line-height: 1.55; font-weight: 800; }
+.story-page .story-discussion .btn { min-height: 46px; }
+@media (max-width: 640px) {
+  .fraction-anatomy { grid-template-columns: 1fr; }
+  .anatomy-card { justify-content: flex-start; gap: 14px; }
+  .anatomy-fraction { min-width: 65px; font-size: 2rem; }
+  .anatomy-fraction > i { width: 56px; }
+  .equiv-operation-row { gap: 6px; padding: 8px 5px; }
+  .equiv-role { flex: 0 0 100%; text-align: center; }
+  .equiv-number { min-width: 34px; min-height: 34px; }
+  .equiv-step-visual { min-height: 200px; }
+  .equiv-step-explanation { align-items: flex-start; }
+  .material-definition { grid-template-columns: 1fr; }
+  .material-definition > span { width: 48px; height: 48px; font-size: 1.7rem; }
+  .story-pizza-pair { grid-template-columns: 1fr; }
+  .story-pizza-card { padding: 16px; }
+  .story-comparison { grid-template-columns: minmax(90px,1fr) auto minmax(90px,1fr); gap: 7px; padding: 12px 8px; }
+  .story-comparison .pizza { width: min(100%, 112px); }
+  .story-comparison-equal { font-size: 1.8rem; }
 }

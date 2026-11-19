@@ -2,45 +2,38 @@
 (function () {
   'use strict';
   const N = window.NUMERA;
-  const BASES = [[1, 2], [1, 3], [2, 3], [3, 4], [2, 5]];
+  const EXAMPLES = [{ n: 1, d: 2, k: 2 }, { n: 2, d: 3, k: 3 }];
 
   N.views.hitung = {
     render() {
       return `<section class="math-page">
         <header class="math-intro">
           <span class="eyebrow">🧮 Belajar pelan-pelan</span>
-          <h1>Ayo Berhitung!</h1>
-          <p>Pilih tiga hal di bawah ini: angka pertama, cara menghitung, dan angka kedua. Nanti kita lihat langkahnya bersama.</p>
+          <h1>Bagaimana Cara Menentukan Pecahan Senilai?</h1>
+          <p>Pecahan senilai dapat dicari dengan mengalikan pembilang dan penyebut dengan bilangan yang sama. Ikuti contoh langkah demi langkah di bawah ini.</p>
         </header>
 
+        <section class="fraction-anatomy" aria-labelledby="fraction-anatomy-title">
+          <div><span class="eyebrow">Kenali bagian pecahan</span><h2 id="fraction-anatomy-title">Anatomi Pecahan</h2><p>Contoh pecahan <b>1/2</b>: angka atas disebut pembilang, angka bawah disebut penyebut.</p></div>
+          <div class="anatomy-card"><div class="anatomy-fraction"><b class="anatomy-numerator">1</b><i></i><b class="anatomy-denominator">2</b></div><div class="anatomy-key"><div><span class="anatomy-badge numerator-badge">1</span><span><b>Pembilang</b><small>Angka di atas</small></span></div><div><span class="anatomy-badge denominator-badge">2</span><span><b>Penyebut</b><small>Angka di bawah</small></span></div></div></div>
+        </section>
+
+        <section class="equiv-stepper" aria-labelledby="equiv-stepper-title">
+          <span class="eyebrow">✨ Simulasi langkah demi langkah</span><h2 id="equiv-stepper-title">Ayo Cari Pecahan Senilai!</h2>
+          <div class="equiv-example-tabs" role="tablist" aria-label="Pilih contoh pecahan"><button type="button" class="equiv-example-tab active" id="equiv-tab-0" data-example="0" role="tab" aria-controls="equiv-step-card" aria-selected="true">Contoh 1 · 1/2 × 2</button><button type="button" class="equiv-example-tab" id="equiv-tab-1" data-example="1" role="tab" aria-controls="equiv-step-card" aria-selected="false">Contoh 2 · 2/3 × 3</button></div>
+          <div class="equiv-step-card" id="equiv-step-card" role="tabpanel" aria-labelledby="equiv-tab-0"><div class="math-progress"><span id="equiv-step-count" aria-live="polite"></span><div class="math-progress-track"><span id="equiv-step-progress"></span></div></div><div class="equiv-step-visual" id="equiv-step-visual" aria-live="polite"></div><p class="equiv-step-explanation" id="equiv-step-explanation" aria-live="polite"></p><div class="math-actions"><button type="button" class="math-reset" id="equiv-reset">↺ Ulangi contoh</button><button type="button" class="btn" id="equiv-next">Langkah berikutnya →</button></div></div>
+        </section>
+
+        <aside class="fraction-reminder"><span aria-hidden="true">💡</span><div><b>Jangan lupa!</b><p>Pembilang dan penyebut harus dikalikan dengan bilangan yang sama agar nilai pecahannya tetap sama.</p></div></aside>
+
         <section class="quick-math" aria-label="Kalkulator berhitung sederhana">
-          <h2>🌟 Pilih hitunganmu</h2>
+          <h2>🌟 Coba hitungan lainnya</h2>
           <div class="quick-math-fields">
             <label>Angka pertama<select id="quick-a" aria-label="Pilih angka pertama">${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${n === 6 ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
             <label>Cara menghitung<select id="quick-op" aria-label="Pilih cara menghitung"><option value="+">➕ Ditambah</option><option value="-">➖ Dikurangi</option><option value="×">✖️ Dikali</option><option value="÷">➗ Dibagi</option></select></label>
             <label>Angka kedua<select id="quick-b" aria-label="Pilih angka kedua">${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${n === 2 ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
           </div>
           <div class="quick-math-answer" id="quick-answer" aria-live="polite"></div>
-        </section>
-
-        <section class="fraction-lesson-intro"><span class="eyebrow">🍕 Misi pecahan</span><h2>Cara Menghitung Pecahan Senilai</h2><p>Pecahan senilai terlihat berbeda, tetapi nilainya sama. Kalikan angka atas dan bawah dengan angka yang sama.</p></section>
-
-        <section class="math-picker" aria-label="Pilih pecahan dan angka pengali">
-          <div class="math-picker-group">
-            <h2>1. Pilih pecahan awal</h2>
-            <div class="math-options" id="bchips" role="group" aria-label="Pecahan awal">${BASES.map(([n, d], i) => `<button type="button" class="math-option ${i === 0 ? 'on' : ''}" data-i="${i}" aria-pressed="${i === 0}">${n}/${d}</button>`).join('')}</div>
-          </div>
-          <div class="math-picker-group">
-            <h2>2. Pilih angka pengali</h2>
-            <div class="math-options" id="kchips" role="group" aria-label="Angka pengali">${[2, 3, 4, 5].map((k, i) => `<button type="button" class="math-option ${i === 0 ? 'on' : ''}" data-k="${k}" aria-pressed="${i === 0}">× ${k}</button>`).join('')}</div>
-          </div>
-        </section>
-
-        <section class="math-board" aria-label="Langkah menghitung">
-          <div class="math-progress"><span id="step-count">Langkah 1 dari 5</span><div class="math-progress-track"><span id="step-progress"></span></div></div>
-          <div class="math-equation" id="sim" aria-live="polite"></div>
-          <div class="math-explain" id="exp" aria-live="polite"></div>
-          <div class="math-actions"><button type="button" class="math-reset" id="rst">↺ Ulangi dari awal</button><button type="button" class="btn" id="nxt">Langkah berikutnya →</button></div>
         </section>
       </section>`;
     },
@@ -62,69 +55,37 @@
       }
       [quickA, quickB, quickOp].forEach((field) => field.addEventListener('change', drawQuickMath));
       drawQuickMath();
-      let bi = 0, k = 2, step = 0;
-      const MAX = 4;
-      const sim = N.$('#sim', root), exp = N.$('#exp', root), nxt = N.$('#nxt', root);
+      let exampleIndex = 0, step = 0;
+      const MAX = 3;
+      const visual = N.$('#equiv-step-visual', root), explanation = N.$('#equiv-step-explanation', root), next = N.$('#equiv-next', root);
 
       function draw() {
-        const [n, d] = BASES[bi];
-        const final = step === MAX;
-        const factor = N.frac(k, k, 'math-frac');
-        const original = `<span class="math-term"><span class="math-caption">Pecahan awal</span>${N.frac(n, d, 'math-frac')}</span>`;
-        const multiplied = `<span class="math-term"><span class="math-caption">Kalikan atas dan bawah</span>${N.frac(`${n} × ${k}`, `${d} × ${k}`, 'math-frac')}</span>`;
-        const result = `<span class="math-term math-result"><span class="math-caption">Pecahan baru</span>${N.frac(n * k, d * k, 'math-frac')}</span>`;
-
-        if (final) {
-          sim.innerHTML = `<div class="math-pizza-pair"><div class="math-pizza-item">${N.pizza(n, d, 112)}<b>${n}/${d}</b><span>pizza pertama</span></div><span class="math-equals">=</span><div class="math-pizza-item">${N.pizza(n * k, d * k, 112)}<b>${n * k}/${d * k}</b><span>pizza kedua</span></div></div>`;
-        } else {
-          const parts = [original];
-          if (step >= 1) parts.push(`<span class="math-symbol">×</span><span class="math-term"><span class="math-caption">Nilainya sama dengan 1</span>${factor}</span>`);
-          if (step >= 2) parts.push(`<span class="math-symbol">=</span>${multiplied}`);
-          if (step >= 3) parts.push(`<span class="math-symbol">=</span>${result}`);
-          sim.innerHTML = parts.join('');
-        }
-
+        const { n, d, k } = EXAMPLES[exampleIndex], resultN = n * k, resultD = d * k;
+        const topRow = `<div class="equiv-operation-row"><span class="equiv-role numerator-role">Pembilang</span><b class="equiv-number numerator-number">${n}</b><span class="equiv-times">× ${k}</span><span class="equiv-arrow">→</span><b class="equiv-number numerator-number">${resultN}</b>${step === MAX ? `<span class="equiv-factor">× ${k}</span>` : ''}</div>`;
+        const bottomRow = `<div class="equiv-operation-row"><span class="equiv-role denominator-role">Penyebut</span><b class="equiv-number denominator-number">${d}</b><span class="equiv-times">× ${k}</span><span class="equiv-arrow">→</span><b class="equiv-number denominator-number">${resultD}</b>${step === MAX ? `<span class="equiv-factor">× ${k}</span>` : ''}</div>`;
+        visual.innerHTML = `<div class="equiv-working"><div class="equiv-start"><span>Pecahan awal</span><div class="equiv-fraction"><b class="numerator-number">${n}</b><i></i><b class="denominator-number">${d}</b></div></div>${step >= 1 ? `<div class="equiv-operations">${topRow}${step >= 2 ? bottomRow : ''}</div>` : ''}${step === MAX ? `<div class="equiv-final"><span>Hasil pecahan senilai</span><strong>${n}/${d} = ${resultN}/${resultD}</strong></div>` : ''}</div>`;
         const explanations = [
-          `Kita mulai dari <b>${n}/${d}</b>. Angka ${n} ada di atas. Angka ${d} ada di bawah.`,
-          `Sekarang kalikan dengan <b>${k}/${k}</b>. Hasil ${k} dibagi ${k} adalah 1, jadi nilainya tetap sama.`,
-          `Kalikan kedua angka atas dengan ${k}. Kalikan kedua angka bawah dengan ${k} juga.`,
-          `Angka atas: <b>${n} × ${k} = ${n * k}</b>. Angka bawah: <b>${d} × ${k} = ${d * k}</b>.`,
-          `Hebat! <b>${n}/${d} sama dengan ${n * k}/${d * k}</b>. Lihat, bagian pizza yang diarsir sama besar!`
+          `Langkah 1: Tulis pecahan awal <b>${n}/${d}</b>. Angka atas adalah pembilang, angka bawah adalah penyebut.`,
+          `Langkah 2: Kalikan pembilang (angka kuning) dengan ${k}: <b>${n} × ${k} = ${resultN}</b>.`,
+          `Langkah 3: Kalikan penyebut (angka biru) dengan ${k}: <b>${d} × ${k} = ${resultD}</b>. Gunakan bilangan pengali yang sama.`,
+          `Langkah 4: Kedua bagian dikalikan ${k}. Jadi, <b>${n}/${d} = ${resultN}/${resultD}</b>. Nilai pecahannya tetap sama!`
         ];
-        exp.innerHTML = `<span class="math-bubble" aria-hidden="true">${final ? '🎉' : ['👀', '✖️', '🧮', '✅'][step]}</span><p>${explanations[step]}</p>`;
-        N.$('#step-count', root).textContent = `Langkah ${step + 1} dari 5`;
-        N.$('#step-progress', root).style.width = `${((step + 1) / 5) * 100}%`;
-        nxt.disabled = final;
-        nxt.textContent = final ? 'Selesai ✓' : 'Langkah berikutnya →';
+        explanation.innerHTML = `<span class="equiv-step-emoji" aria-hidden="true">${['👀', '🟡', '🔵', '🎉'][step]}</span><span>${explanations[step]}</span>`;
+        N.$('#equiv-step-count', root).textContent = `Langkah ${step + 1} dari 4`;
+        N.$('#equiv-step-progress', root).style.width = `${((step + 1) / 4) * 100}%`;
+        next.disabled = step === MAX;
+        next.textContent = step === MAX ? 'Contoh selesai ✓' : 'Langkah berikutnya →';
       }
 
-      nxt.addEventListener('click', () => {
-        if (step < MAX) {
-          step++;
-          draw();
-          step === MAX ? (N.sfx.ok(), N.confetti(70)) : N.sfx.click();
-        }
+      next.addEventListener('click', () => {
+        if (step < MAX) { step++; draw(); step === MAX ? (N.sfx.ok(), N.confetti(70)) : N.sfx.click(); }
       });
-      N.$('#rst', root).addEventListener('click', () => { step = 0; draw(); });
-      N.$$('#bchips .math-option', root).forEach((button) => button.addEventListener('click', () => {
-        bi = Number(button.dataset.i);
-        step = 0;
-        N.$$('#bchips .math-option', root).forEach((option) => {
-          const active = option === button;
-          option.classList.toggle('on', active);
-          option.setAttribute('aria-pressed', String(active));
-        });
-        draw();
-      }));
-      N.$$('#kchips .math-option', root).forEach((button) => button.addEventListener('click', () => {
-        k = Number(button.dataset.k);
-        step = 0;
-        N.$$('#kchips .math-option', root).forEach((option) => {
-          const active = option === button;
-          option.classList.toggle('on', active);
-          option.setAttribute('aria-pressed', String(active));
-        });
-        draw();
+      N.$('#equiv-reset', root).addEventListener('click', () => { step = 0; draw(); N.sfx.click(); });
+      N.$$('.equiv-example-tab', root).forEach((button) => button.addEventListener('click', () => {
+        exampleIndex = Number(button.dataset.example); step = 0;
+        N.$$('.equiv-example-tab', root).forEach((tab) => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', String(active)); });
+        N.$('#equiv-step-card', root).setAttribute('aria-labelledby', button.id);
+        draw(); N.sfx.click();
       }));
       draw();
     }
