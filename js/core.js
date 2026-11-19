@@ -15,7 +15,7 @@
   N.KKM = 75; // Kriteria Ketuntasan Minimal
   N.EVAL_COUNT = 5;
   const LEARNING_DEFAULTS = {
-    appName: 'NUMERA', subjectName: 'Matematika', gradeName: 'Kelas IV', kkm: 75, evalCount: 5,
+    appName: 'NUMERA', mediaLabel: 'Media Belajar', homeSlogan: 'Jelajahi pecahan senilai lewat cerita, permainan, dan kegiatan interaktif bersama NUMERA.', subjectName: 'Matematika', gradeName: 'Kelas IV', kkm: 75, evalCount: 5,
     themes: [
       { id: 'Pizza', name: 'Pizza', icon: '🍕', plural: 'pizza', title: 'Berbagi Pizza' },
       { id: 'Balon', name: 'Balon', icon: '🎈', plural: 'balon', title: 'Berbagi Balon' },
@@ -28,6 +28,18 @@
       { id: 'kali', label: 'Kali', sign: '×', icon: '✖️', a: 3, b: 2, story: 'Ada 3 kelompok. Tiap kelompok berisi 2 benda. Semuanya ada 6!' },
       { id: 'bagi', label: 'Bagi', sign: '÷', icon: '➗', a: 6, b: 2, story: 'Ada 6 benda untuk 2 anak. Setiap anak mendapat 3!' }
     ]
+  };
+  N.storyDefaults = {
+    title: 'Ayo, Berbagi {item}!',
+    step1Label: 'Lihat bendanya',
+    step1Text: 'Ada {count} {item}. Ayo kita bagikan sama rata kepada {children} anak!',
+    step2Label: 'Bagikan sama rata',
+    step2Text: '{count} {item} dibagikan sama rata kepada {children} anak. Setiap anak mendapat {answer} {item}.',
+    step3Label: 'Coba jawab sendiri',
+    step3Text: 'Sekarang kamu tahu cara membaginya. Berapa {item} untuk setiap anak?',
+    successTitle: 'Yeay, kamu berhasil!',
+    successText: 'Hebat! {count} {item} dibagikan kepada {children} anak. Setiap anak mendapat {answer} {item}.',
+    successEncouragement: 'Terus berlatih, kamu pasti makin pintar!'
   };
 
   /* ---------- Penyimpanan terstruktur (localStorage) ---------- */
@@ -42,6 +54,12 @@
     return { ...LEARNING_DEFAULTS, ...saved,
       themes: Array.isArray(saved.themes) && saved.themes.length ? saved.themes : LEARNING_DEFAULTS.themes,
       operations: Array.isArray(saved.operations) && saved.operations.length ? saved.operations : LEARNING_DEFAULTS.operations };
+  };
+  N.storyContent = () => ({ ...N.storyDefaults, ...N.db.get('storyContent', {}) });
+  N.storyLibrary = () => {
+    const saved = N.db.get('storyLibrary', null);
+    if (Array.isArray(saved) && saved.length) return saved.map((story) => ({ ...N.storyDefaults, ...story }));
+    return [{ id: 'cerita-awal', ...N.storyDefaults, ...N.db.get('storyContent', {}) }];
   };
   N.applyLearningConfig = () => {
     const config = N.learningConfig();

@@ -5,11 +5,12 @@
   N.views.home = {
     render() {
       const config = N.learningConfig();
+      const theme = config.themes[0];
       const features = [
-        ['#/cerita', '🍕', 'Cerita Pizza', 'Rani dan Budi berbagi pizza', 'k1'],
-        ['#/materi', '📘', 'Materi Pecahan', 'Kenali pecahan senilai dengan mudah', 'k2'],
+        ['#/cerita', theme.icon, `Cerita ${theme.name}`, `Rani dan Budi berbagi ${theme.plural || theme.name.toLowerCase()}`, 'k1'],
+        ['#/materi', '📘', `Materi ${config.subjectName}`, 'Lihat contoh dan belajar langkah demi langkah', 'k2'],
         ['#/video', '🎬', 'Video Pembelajaran', 'Tonton bersama satu kelas', 'k3'],
-        ['#/hitung', '🧮', 'Cara Menghitung', 'Kalikan pembilang dan penyebut', 'k4']
+        ['#/hitung', '🧮', 'Cara Menghitung', 'Pahami langkah berhitung dengan contoh', 'k4']
       ];
       return `<section class="hero">
         <div class="cloud c1" aria-hidden="true"></div><div class="cloud c2" aria-hidden="true"></div><div class="cloud c3" aria-hidden="true"></div>
@@ -22,9 +23,9 @@
         <div class="kawaii" aria-hidden="true"></div>
         <div class="wrap">
           <div class="hero-copy">
-            <span class="eyebrow">✨ Media Belajar ${N.esc(config.subjectName)} ${N.esc(config.gradeName)}</span>
+            <span class="eyebrow">✨ ${N.esc(config.mediaLabel)} ${N.esc(config.subjectName)} ${N.esc(config.gradeName)}</span>
             <h1>Belajar ${N.esc(config.subjectName)} <span class="pop">Jadi Seru!</span></h1>
-            <p class="lead">Jelajahi pecahan senilai lewat cerita, permainan, dan kegiatan interaktif bersama NUMERA.</p>
+            <p class="lead">${N.esc(config.homeSlogan)}</p>
             <div class="hero-actions"><a class="btn" href="#/cerita">🚀 Mulai Belajar</a><a class="btn white" href="#dunia">Jelajahi Materi</a></div>
           </div>
           <div class="stage" aria-label="Kubus warna-warni dengan planet yang mengorbit">
@@ -38,15 +39,15 @@
       <div class="wave w-grass" aria-hidden="true"><svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,20 C180,55 320,0 520,20 C760,48 920,4 1120,20 C1280,34 1360,4 1440,18 L1440,48 L0,48Z"/></svg></div>
       <section class="section" id="dunia">
         <div class="wrap"><div class="section-head"><h2>Jelajahi Dunia Pecahan</h2><p>Pilih kegiatan yang kamu suka dan temukan cara seru memahami pecahan senilai.</p></div>
-          <div class="cards">${features.map(([href, icon, title, desc, color]) => `<a class="card ${color}" href="${href}"><span class="glyph">${icon}</span><h3>${title}</h3><p>${desc}</p><span class="tag">Ayo jelajahi →</span></a>`).join('')}</div>
+          <div class="cards">${features.map(([href, icon, title, desc, color]) => `<a class="card ${color}" href="${href}"><span class="glyph">${N.esc(icon)}</span><h3>${N.esc(title)}</h3><p>${N.esc(desc)}</p><span class="tag">Ayo jelajahi →</span></a>`).join('')}</div>
         </div>
       </section>
-      <section class="section" aria-label="Contoh gambar pecahan pizza"><div class="wrap">
-        <div class="section-head"><h2>Lihat Pecahan dengan Pizza</h2><p>Jumlah potongnya berbeda, tetapi bagian yang diarsir menunjukkan nilai yang sama.</p></div>
+      <section class="section" aria-label="Contoh gambar pecahan senilai"><div class="wrap">
+        <div class="section-head"><h2>Lihat Pecahan dengan ${N.esc(theme.name)}</h2><p>Jumlah bagiannya berbeda, tetapi bagian yang diarsir menunjukkan nilai yang sama.</p></div>
         <div class="cards">
-          <article class="card k1"><span class="glyph">${N.pizza(1, 2, 72)}</span><h3>Satu per dua</h3><p>Satu dari dua potong pizza.</p></article>
-          <article class="card k2"><span class="glyph">${N.pizza(2, 4, 72)}</span><h3>Dua per empat</h3><p>Dua dari empat potong pizza.</p></article>
-          <article class="card k3"><span class="glyph">${N.pizza(3, 6, 72)}</span><h3>Tiga per enam</h3><p>Tiga dari enam potong pizza.</p></article>
+          <article class="card k1"><span class="glyph">${N.themePicture(theme.id, 1, 2, 72, false, `1 dari 2 ${theme.plural} diarsir`)}</span><h3>Satu per dua</h3><p>Satu dari dua bagian ${N.esc(theme.plural || theme.name.toLowerCase())}.</p></article>
+          <article class="card k2"><span class="glyph">${N.themePicture(theme.id, 2, 4, 72, false, `2 dari 4 ${theme.plural} diarsir`)}</span><h3>Dua per empat</h3><p>Dua dari empat bagian ${N.esc(theme.plural || theme.name.toLowerCase())}.</p></article>
+          <article class="card k3"><span class="glyph">${N.themePicture(theme.id, 3, 6, 72, false, `3 dari 6 ${theme.plural} diarsir`)}</span><h3>Tiga per enam</h3><p>Tiga dari enam bagian ${N.esc(theme.plural || theme.name.toLowerCase())}.</p></article>
         </div>
       </div></section>
       <div class="wave w-sky" aria-hidden="true"><svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,18 C180,50 320,0 520,18 C760,46 920,4 1120,18 C1280,34 1360,3 1440,18 L1440,48 L0,48Z"/></svg></div>

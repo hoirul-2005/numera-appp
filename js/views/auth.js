@@ -7,17 +7,17 @@
 
   N.views.login = {
     render() {
-      if (N.auth.current()) return `<div class="card center formbox"><p>Kamu sudah masuk.</p><a class="btn btn-y" href="#/beranda">Ke Beranda</a></div>`;
+      if (N.auth.current()) return `<section class="login-page"><div class="login-card login-already"><span class="login-lock" aria-hidden="true">✅</span><h2>Kamu sudah masuk</h2><p>Sesi pengelola sedang aktif.</p><a class="btn btn-y" href="#/beranda">Ke Beranda</a></div></section>`;
       const mfa = N.auth.mfaPending();
-      if (mfa) return `<div class="card formbox"><h2>🔐 Verifikasi 2 Langkah</h2>
-        <p>Masukkan kode 6 digit dari aplikasi autentikator Anda.</p>
-        <div class="info">🧪 <b>Mode demo:</b> kode simulasi saat ini <b id="demo" style="font-size:1.3rem;letter-spacing:3px">${N.auth.mfaDemoCode()}</b> (berganti tiap 30 detik, <span id="rem">${N.sec.totpRemaining()}</span> dtk lagi). Di produksi, kode tidak ditampilkan.</div>
-        <form id="f" autocomplete="off"><label for="c">Kode verifikasi</label><input id="c" inputmode="numeric" pattern="\\d{6}" maxlength="6" required autofocus>
-        <div id="e" aria-live="polite"></div><div class="row" style="margin-top:14px"><button class="btn btn-y">Verifikasi</button><button type="button" class="btn" id="cancel">Batal</button></div></form></div>`;
-      return `<div class="card formbox"><h2>🔐 Login Admin</h2>
-  <p>Admin perlu masuk untuk mengelola materi, soal, dan konten belajar. Siswa dapat langsung belajar tanpa login.</p>
-  <form id="f" autocomplete="off"><label for="u">Username admin</label><input id="u" required maxlength="30" autocomplete="username"><label for="p">Password</label><input id="p" type="password" required autocomplete="current-password">
-  <div id="e" aria-live="polite"></div><div class="row" style="margin-top:14px"><button class="btn btn-y">Masuk</button></div></form></div>`;
+      if (mfa) return `<section class="login-page login-mfa"><div class="login-card"><div class="login-card-heading"><span class="login-lock" aria-hidden="true">🔐</span><div><h2>Verifikasi 2 langkah</h2><p>Langkah terakhir untuk masuk ke dashboard admin.</p></div></div>
+        <div class="login-demo-code"><b>🔎 Kode demo</b><p>Masukkan kode 6 digit ini untuk melanjutkan.</p><strong id="demo">${N.auth.mfaDemoCode()}</strong><small>Kode berubah dalam <span id="rem">${N.sec.totpRemaining()}</span> detik.</small></div>
+        <form id="f" class="login-form" autocomplete="off"><label for="c">Kode verifikasi</label><input id="c" inputmode="numeric" pattern="\\d{6}" maxlength="6" placeholder="000000" required autofocus>
+        <div id="e" aria-live="polite"></div><div class="login-actions"><button class="btn btn-y">Verifikasi & Masuk</button><button type="button" class="btn login-cancel" id="cancel">Kembali</button></div></form></div></section>`;
+      return `<section class="login-page"><div class="login-shell"><aside class="login-welcome"><span class="eyebrow">🧑‍🏫 Area Pengelola</span><div class="login-mascot" aria-hidden="true">📚</div><h1>Halo, Guru!</h1><p>Masuk untuk mengatur materi, soal, tema, dan video pembelajaran.</p><div class="login-benefits"><span>📘 Kelola materi</span><span>🧩 Atur bank soal</span><span>🎬 Tambah video</span></div></aside>
+        <div class="login-card"><div class="login-card-heading"><span class="login-lock" aria-hidden="true">🔐</span><div><h2>Login Admin</h2><p>Masukkan akun pengelola untuk melanjutkan.</p></div></div>
+        <form id="f" class="login-form" autocomplete="on"><label for="u">Username admin</label><input id="u" required maxlength="30" autocomplete="username" placeholder="Contoh: guru"><label for="p">Password</label><input id="p" type="password" required autocomplete="current-password" placeholder="Masukkan password">
+        <div id="e" aria-live="polite"></div><div class="login-actions"><button class="btn btn-y">Masuk ke Dashboard</button></div></form>
+        <div class="login-student-note"><span aria-hidden="true">🌟</span><p><b>Siswa tidak perlu login.</b><br>Langsung pilih Belajar, Ayo Berlatih, atau Evaluasi dari menu.</p><a href="#/beranda">Ke Beranda</a></div></div></div></section>`;
     },
 
     mount(root) {

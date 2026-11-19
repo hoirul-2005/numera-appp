@@ -5,25 +5,28 @@
   const themes = () => N.learningConfig().themes;
   const themeInfo = (id) => { const theme = N.learningTheme(id); return { icon: theme.icon, plural: theme.plural || theme.name, title: theme.title || `Berbagi ${theme.name}`, name: theme.name }; };
 
-  function picture(themeName, numerator, denominator, label) {
-    return N.themePicture(themeName, numerator, denominator, 170, false, label);
+  function itemPicture(theme, count, label) {
+    const shown = Math.min(count, 15);
+    return `<div class="story-large-illustration" role="img" aria-label="${N.esc(label)}"><div class="story-large-items">${Array.from({ length: shown }, () => `<span aria-hidden="true">${N.esc(theme.icon)}</span>`).join('')}${count > shown ? `<b>+${count - shown}</b>` : ''}</div><strong>${N.esc(label)}</strong></div>`;
   }
 
-  function fractionVisual(themeName, numerator, denominator, name) {
-    const theme = themeInfo(themeName);
-    return `<div class="pz story-fraction">${picture(themeName, numerator, denominator, `${numerator} dari ${denominator} ${theme.plural}`)}<b>${name}: ${N.frac(numerator, denominator, 'sm')}</b><span>${numerator} dari ${denominator} ${theme.plural}</span></div>`;
+  function sharePicture(theme, childCount, eachCount) {
+    const groups = Math.min(childCount, 6);
+    return `<div class="story-share-illustration" role="img" aria-label="${childCount} anak mendapat ${eachCount} ${N.esc(theme.plural)} masing-masing">${Array.from({ length: groups }, () => `<div class="story-share-group"><span class="story-child" aria-hidden="true">🧒</span><div class="story-share-items">${Array.from({ length: Math.min(eachCount, 5) }, () => `<span aria-hidden="true">${N.esc(theme.icon)}</span>`).join('')}${eachCount > 5 ? `<b>+${eachCount - 5}</b>` : ''}</div><strong>${eachCount} untuk 1 anak</strong></div>`).join('')}${childCount > groups ? `<p class="story-more-groups">dan ${childCount - groups} anak lainnya mendapat bagian yang sama</p>` : ''}</div>`;
   }
 
   const operations = () => N.learningConfig().operations;
+  const storyLine = (template, values) => String(template || '').replace(/\{(count|item|children|answer)\}/g, (_, key) => String(values[key] ?? ''));
 
-  function storySteps(themeName, operation = 'bagi') {
+  function storySteps(themeName, operation = 'bagi', content = N.storyContent()) {
     const theme = themeInfo(themeName);
     const math = operations().find((op) => op.id === operation) || operations().find((op) => op.id === 'bagi');
     const answer = math.id === 'tambah' ? math.a + math.b : math.id === 'kurang' ? math.a - math.b : math.id === 'kali' ? math.a * math.b : math.a / math.b;
+    const values = { count: math.a, item: theme.plural, children: math.b, answer };
     return [
-      { text: math.story, vis: () => `<div class="story-math-scene"><span>${N.esc(theme.icon)}</span><b>${math.id === 'kali' ? `${math.a} kelompok × ${math.b} benda` : math.id === 'bagi' ? `${math.a} benda dibagi ${math.b} anak` : `${math.a} ${N.esc(math.sign)} ${math.b}`}</b><span>${N.esc(theme.icon)}</span></div>` },
-      { text: `Kita hitung bersama: ${math.a} ${math.sign} ${math.b}.`, vis: () => `<div class="story-math-equation">${math.a} <span>${N.esc(math.sign)}</span> ${math.b} <span>= ?</span></div>` },
-      { text: 'Pilih jawaban yang benar, ya!', vis: () => `<div class="story-math-equation">${math.a} ${N.esc(math.sign)} ${math.b} = ?</div>`, quiz: true, choices: [answer, answer + 1, Math.max(0, answer - 1)].sort(() => Math.random() - .5), answer: String(answer) }
+      { label: content.step1Label, text: storyLine(content.step1Text, values), vis: () => itemPicture(theme, math.a, `${math.a} ${theme.plural}`) },
+      { label: content.step2Label, text: storyLine(content.step2Text, values), vis: () => `<div class="story-sharing-step"><div class="story-sharing-equation">${math.a} <span>÷</span> ${math.b} <span>=</span> <b>${answer}</b></div>${sharePicture(theme, math.b, answer)}</div>` },
+      { label: content.step3Label, text: storyLine(content.step3Text, values), vis: () => `<div class="story-final-picture">${sharePicture(theme, math.b, answer)}<div class="story-final-question">${math.a} ${N.esc(math.sign)} ${math.b} = ?</div></div>`, quiz: true, choices: [answer, answer + 1, Math.max(0, answer - 1)].sort(() => Math.random() - .5), answer: String(answer) }
     ];
   }
 
@@ -33,60 +36,50 @@
       const userId = user ? String(user.id || user.username || user.role).replace(/[^\w-]/g, '_') : 'guest';
       const saved = N.db.get(`storyTheme_${userId}`, 'Pizza');
       const activeTheme = themes().some((theme) => theme.id === saved) ? saved : themes()[0].id;
+      const stories = N.storyLibrary();
+      const selectedStoryId = N.db.get(`storyChoice_${userId}`, stories[0].id);
+      const activeStory = stories.find((story) => N.sameId(story.id, selectedStoryId)) || stories[0];
       const config = N.learningConfig();
       return `<section class="story-page">
-        <h1 id="story-title">📖 Ayo, ${themeInfo(activeTheme).title}!</h1>
+        <h1 id="story-title">📖 ${N.esc(storyLine(activeStory.title, { item: themeInfo(activeTheme).plural }))}</h1>
         <form class="story-theme-form" id="story-theme-form">
-          <div><label for="story-theme">Pilih tema cerita</label><p>${N.esc(config.gradeName)} · Pilihan tersimpan di akun atau perangkat ini.</p></div>
-          <div class="story-theme-controls"><select id="story-theme" name="theme">${themes().map((theme) => `<option value="${N.esc(theme.id)}" ${theme.id === activeTheme ? 'selected' : ''}>${N.esc(theme.icon)} ${N.esc(theme.name)}</option>`).join('')}</select><button class="btn" type="submit">Gunakan tema</button></div>
+          <div><label for="story-choice">Pilih cerita dan tema</label><p>${N.esc(config.gradeName)} · Pilihan tersimpan di akun atau perangkat ini.</p></div>
+          <div class="story-theme-controls"><select id="story-choice" name="storyChoice" aria-label="Pilih cerita">${stories.map((story) => `<option value="${N.esc(story.id)}" ${N.sameId(story.id, activeStory.id) ? 'selected' : ''}>📖 ${N.esc(story.title)}</option>`).join('')}</select><select id="story-theme" name="theme" aria-label="Pilih tema gambar">${themes().map((theme) => `<option value="${N.esc(theme.id)}" ${theme.id === activeTheme ? 'selected' : ''}>${N.esc(theme.icon)} ${N.esc(theme.name)}</option>`).join('')}</select><button class="btn" type="submit">Mulai cerita</button></div>
         </form>
-        <section class="story-addition-builder" aria-labelledby="addition-title">
-          <span class="eyebrow">➕ Coba buat sendiri</span><h2 id="addition-title">Kalau ditambah, jadi berapa?</h2>
-          <p>Atur dua angka. Cerita dan hasilnya akan muncul langsung!</p>
-          <div class="story-addition-fields">
-            <label>Aku punya <input id="story-add-a" type="number" min="0" max="50" value="3" inputmode="numeric"></label>
-            <span class="story-addition-plus" aria-hidden="true">+</span>
-            <label>Lalu mendapat <input id="story-add-b" type="number" min="0" max="50" value="2" inputmode="numeric"></label>
-          </div>
-          <div class="story-addition-result" id="story-addition-result" aria-live="polite"></div>
-        </section>
-        <div class="story-operation-picker"><b>Pilih petualangan hitung:</b><div class="operation-tabs" role="group" aria-label="Pilih petualangan berhitung">${operations().map((op) => `<button type="button" class="operation-tab ${op.id === 'bagi' ? 'active' : ''}" data-story-operation="${op.id}" aria-pressed="${op.id === 'bagi'}">${N.esc(op.icon)} ${N.esc(op.label)}</button>`).join('')}</div></div>
-        <div class="stage" id="stage"></div><div class="dots" id="dots"></div>
+        <div class="story-walkthrough"><div class="stage" id="stage"></div><div class="dots" id="dots"></div>
         <div class="row center story-navigation"><button class="btn" id="prev" type="button">⬅️ Sebelumnya</button><button class="btn" id="next" type="button">Lanjut ➡️</button></div>
+        </div>
       </section>`;
     },
     mount(root) {
       const user = N.auth.current();
       const userId = user ? String(user.id || user.username || user.role).replace(/[^\w-]/g, '_') : 'guest';
       const storageKey = `storyTheme_${userId}`;
+      const storyStorageKey = `storyChoice_${userId}`;
       const form = N.$('#story-theme-form', root);
       const selector = N.$('#story-theme', root);
+      const storySelector = N.$('#story-choice', root);
       const title = N.$('#story-title', root);
       const stage = N.$('#stage', root), dots = N.$('#dots', root);
       const prev = N.$('#prev', root), next = N.$('#next', root);
-      let themeName = selector.value, operation = 'bagi', steps = storySteps(themeName, operation), i = 0, solved = false;
-      const addA = N.$('#story-add-a', root), addB = N.$('#story-add-b', root);
-      const addResult = N.$('#story-addition-result', root);
-      function drawAddition() {
-        const a = Math.max(0, Math.min(50, Number(addA.value) || 0));
-        const b = Math.max(0, Math.min(50, Number(addB.value) || 0));
-        addA.value = a; addB.value = b;
-        const info = themeInfo(themeName), icon = info.icon;
-        addResult.innerHTML = `<div class="story-addition-equation"><span>${a}</span><b>+</b><span>${b}</span><b>=</b><strong>${a + b}</strong></div><p>Aku punya ${a} ${N.esc(info.plural)}. Lalu mendapat ${b} lagi. Sekarang aku punya <strong>${a + b} ${N.esc(info.plural)}!</strong></p><div class="story-addition-pictures" aria-label="${a + b} ${N.esc(info.plural)}">${N.esc(icon).repeat(Math.min(a + b, 30))}${a + b > 30 ? ` <small>dan ${a + b - 30} lagi</small>` : ''}</div>`;
-      }
-      [addA, addB].forEach((input) => input.addEventListener('input', drawAddition));
+      let themeName = selector.value, operation = 'bagi';
+      let selectedStory = N.storyLibrary().find((story) => N.sameId(story.id, storySelector.value)) || N.storyLibrary()[0];
+      let steps = storySteps(themeName, operation, selectedStory), i = 0, solved = false;
 
       function conclusion() {
         const op = operations().find((item) => item.id === operation);
         const result = op.id === 'tambah' ? op.a + op.b : op.id === 'kurang' ? op.a - op.b : op.id === 'kali' ? op.a * op.b : op.a / op.b;
-        const m = N.modal(`<div class="center"><h2>🎉 Hebat, kamu berhasil!</h2><div class="story-math-equation">${op.a} ${N.esc(op.sign)} ${op.b} = ${result}</div><p>Kamu sudah menyelesaikan petualangan ${N.esc(op.label.toLowerCase())}!</p><div class="row" style="justify-content:center"><a class="btn" href="#/materi" data-close>Pelajari Materi 📘</a><button class="btn" type="button" data-close>Tutup</button></div></div>`);
+        const content = selectedStory, theme = themeInfo(themeName);
+        const values = { count: op.a, item: theme.plural, children: op.b, answer: result };
+        const message = storyLine(content.successText, values), encouragement = storyLine(content.successEncouragement, values);
+        const m = N.modal(`<div class="story-success"><div class="story-success-badge" aria-hidden="true">🎉</div><span class="eyebrow">✅ Jawabanmu benar!</span><h2>${N.esc(content.successTitle)}</h2><div class="story-math-equation">${op.a} ${N.esc(op.sign)} ${op.b} = ${result}</div><p class="story-success-message">${N.esc(message)}</p><p class="story-success-encouragement">${N.esc(encouragement)}</p><div class="story-success-actions"><a class="btn" href="#/materi" data-close>Pelajari Materi 📘</a><button class="btn btn-white" type="button" data-close>Coba Lagi Nanti</button></div></div>`);
         N.$$('[data-close]', m.el).forEach((button) => button.addEventListener('click', m.close));
         N.sfx.win(); N.confetti();
       }
 
       function draw() {
         const current = steps[i];
-        stage.innerHTML = `<div class="center">${current.vis()}</div><div class="speech">${current.text}</div>` +
+        stage.innerHTML = `<div class="story-step-label"><span>Langkah ${i + 1} dari ${steps.length}</span><strong>${N.esc(current.label)}</strong></div><div class="center">${current.vis()}</div><div class="speech">${N.esc(current.text)}</div>` +
           (current.quiz ? `<div class="row story-choices">${(current.choices || ['Rani', 'Budi', 'Sama banyak']).map((choice) => `<button type="button" class="btn choice" data-c="${choice}">${choice}</button>`).join('')}</div><p class="center" id="hint" aria-live="polite"></p>` : '');
         dots.innerHTML = steps.map((_, index) => `<i class="${index <= i ? 'on' : ''}"></i>`).join('');
         prev.disabled = i === 0;
@@ -104,24 +97,15 @@
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        if (selector.value === themeName) {
-          N.db.set(storageKey, themeName);
-          N.toast(`Tema ${themeName} tersimpan untuk akunmu!`);
-          return;
-        }
         themeName = selector.value;
+        selectedStory = N.storyLibrary().find((story) => N.sameId(story.id, storySelector.value)) || N.storyLibrary()[0];
         N.db.set(storageKey, themeName);
-        steps = storySteps(themeName, operation); i = 0; solved = false;
-        title.textContent = `📖 Ayo, ${themeInfo(themeName).title}!`;
-        draw(); drawAddition();
-        N.toast(`Tema ${themeName} siap digunakan!`);
+        N.db.set(storyStorageKey, selectedStory.id);
+        steps = storySteps(themeName, operation, selectedStory); i = 0; solved = false;
+        title.textContent = `📖 ${storyLine(selectedStory.title, { item: themeInfo(themeName).plural })}`;
+        draw();
+        N.toast('Cerita dan tema siap digunakan!');
       });
-      N.$$('[data-story-operation]', root).forEach((button) => button.addEventListener('click', () => {
-        operation = button.dataset.storyOperation; steps = storySteps(themeName, operation); i = 0; solved = false;
-        N.$$('[data-story-operation]', root).forEach((tab) => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
-        draw(); N.sfx.click();
-      }));
-      drawAddition();
       prev.addEventListener('click', () => { if (i > 0) { i--; N.sfx.click(); draw(); } });
       next.addEventListener('click', () => {
         N.sfx.click();

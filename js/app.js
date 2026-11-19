@@ -20,7 +20,7 @@
     N.$('#hdr').innerHTML = `<div class="top"><div class="wrap"><a class="brand" href="#/beranda"><span class="brand-cube">½</span>${N.esc(appName)}</a><button class="mobile-menu" id="menu-toggle" type="button" aria-expanded="false" aria-controls="nv">☰ Menu</button>
       <nav class="nav" id="nv" aria-label="Menu utama">${links}${extra}<button class="font-control" id="font-down" type="button" aria-label="Kecilkan ukuran teks" title="Kecilkan teks">A−</button><button class="font-control" id="font-up" type="button" aria-label="Besarkan ukuran teks" title="Besarkan teks">A+</button></nav></div></div>`;
     const footerBrand = N.$('.foot .wrap span');
-    if (footerBrand) footerBrand.textContent = `${appName} · MEDIA BELAJAR ${config.subjectName.toUpperCase()}`;
+    if (footerBrand) footerBrand.textContent = `${appName} · ${config.mediaLabel.toUpperCase()} ${config.subjectName.toUpperCase()}`;
     N.$('#menu-toggle').addEventListener('click', (event) => {
       const open = N.$('#nv').classList.toggle('open');
       event.currentTarget.setAttribute('aria-expanded', String(open));

@@ -27,7 +27,13 @@
     const a = essayNorm(answer), b = essayNorm(input);
     if (!a || !b) return false;
     if (a === b) return true;
-    return a.includes(b) || b.includes(a);
+    const fraction = (value) => {
+      const match = value.match(/^([+-]?\d+)\/([+-]?\d+)$/);
+      if (!match || Number(match[2]) === 0) return null;
+      return [Number(match[1]), Number(match[2])];
+    };
+    const expected = fraction(a), submitted = fraction(b);
+    return Boolean(expected && submitted && expected[0] * submitted[1] === submitted[0] * expected[1]);
   }
 
   function view(kind) {

@@ -37,7 +37,8 @@
       const operations = c.operations.map((x) => [x.id, x.label, x.sign, x.icon, x.a, x.b, x.story].join(' | ')).join('\n');
       return `<h3>🎨 Atur Tampilan dan Isi Belajar</h3><p>Perubahan di sini akan langsung dipakai pada halaman siswa.</p>
         <form id="learning-config-form" class="learning-config-form">
-          <div class="learning-config-grid"><label>Nama aplikasi<input name="appName" required maxlength="40" value="${N.esc(c.appName)}"></label><label>Nama pelajaran<input name="subjectName" required maxlength="60" value="${N.esc(c.subjectName)}"></label><label>Kelas/tingkat<input name="gradeName" required maxlength="40" value="${N.esc(c.gradeName)}"></label><label>Nilai batas tuntas<input name="kkm" type="number" min="0" max="100" required value="${Number(c.kkm)}"></label><label>Jumlah soal evaluasi<input name="evalCount" type="number" min="1" max="100" required value="${Number(c.evalCount)}"></label></div>
+          <div class="learning-config-grid"><label>Nama aplikasi di bar atas<input name="appName" required maxlength="40" value="${N.esc(c.appName)}"></label><label>Tulisan “Media Belajar”<input name="mediaLabel" required maxlength="40" value="${N.esc(c.mediaLabel)}"></label><label>Nama pelajaran<input name="subjectName" required maxlength="60" value="${N.esc(c.subjectName)}"></label><label>Kelas/tingkat<input name="gradeName" required maxlength="40" value="${N.esc(c.gradeName)}"></label><label>Nilai batas tuntas<input name="kkm" type="number" min="0" max="100" required value="${Number(c.kkm)}"></label><label>Jumlah soal evaluasi<input name="evalCount" type="number" min="1" max="100" required value="${Number(c.evalCount)}"></label></div>
+          <label for="config-home-slogan">Slogan / kalimat pembuka beranda<small>Kalimat ini tampil di bawah judul utama pada halaman Beranda.</small></label><textarea id="config-home-slogan" name="homeSlogan" rows="3" maxlength="180" required>${N.esc(c.homeSlogan)}</textarea>
           <label for="config-themes">Tema gambar (satu tema per baris)<small>Format: ID | Nama | Emoji | Nama benda | Judul cerita. Contoh: Kebun | Kebun | 🌻 | bunga | Berbagi Bunga</small></label><textarea id="config-themes" name="themes" rows="5" required>${N.esc(themes)}</textarea>
           <label for="config-operations">Contoh operasi berhitung (satu operasi per baris)<small>Format: ID | Nama | Tanda | Emoji | Angka pertama | Angka kedua | Cerita. ID tetap: tambah, kurang, kali, bagi.</small></label><textarea id="config-operations" name="operations" rows="5" required>${N.esc(operations)}</textarea>
           <div id="config-error" aria-live="polite"></div><button class="btn btn-g" type="submit">💾 Simpan Pengaturan</button>
@@ -45,7 +46,10 @@
     },
     materi() {
       const m = N.db.get('materi', []);
-      return `<div class="row between"><h3>Materi Teks</h3><button class="btn btn-g" data-add>➕ Tambah Materi</button></div>
+      const stories = N.storyLibrary();
+      return `<section class="admin-story-editor"><div><span class="eyebrow">📖 Cerita Belajar</span><h3>Kelola Cerita untuk Siswa</h3><p>Tambahkan beberapa cerita, ubah isinya, dan pilih cerita yang akan dipelajari siswa.</p></div><button type="button" class="btn btn-g" data-add-story>➕ Tambah Cerita</button></section>
+        <div class="admin-story-list">${stories.map((story) => `<article class="admin-story-item"><div><span class="admin-story-icon">📖</span><div><h4>${N.esc(story.title)}</h4><p>${N.esc(story.step1Text.slice(0, 100))}${story.step1Text.length > 100 ? '…' : ''}</p></div></div><div class="admin-actions"><button type="button" class="btn btn-sm btn-b" data-story-edit="${N.esc(story.id)}">✏️ Edit</button><button type="button" class="btn btn-sm btn-r" data-story-del="${N.esc(story.id)}" ${stories.length < 2 ? 'disabled title="Minimal harus ada satu cerita"' : ''}>Hapus</button></div></article>`).join('')}</div>
+        <div class="row between"><h3>Materi Teks</h3><button class="btn btn-g" data-add>➕ Tambah Materi</button></div>
         ${m.length ? `<div class="tw"><table><thead><tr><th>Judul</th><th>Isi</th><th>Aksi</th></tr></thead><tbody>${m.map((x) => `<tr><td><b>${N.esc(x.title)}</b></td><td>${N.esc(x.body.slice(0, 110))}${x.body.length > 110 ? '…' : ''}</td><td><div class="admin-actions"><button type="button" class="btn btn-sm btn-b" data-edit="${x.id}" aria-label="Edit ${N.esc(x.title)}">Edit</button><button type="button" class="btn btn-sm btn-r" data-del="${x.id}" aria-label="Hapus ${N.esc(x.title)}">Hapus</button></div></td></tr>`).join('')}</tbody></table></div>` : '<div class="admin-empty"><span>📘</span><h4>Materi masih kosong</h4><p>Buat materi pertama agar siswa punya bahan belajar.</p><button class="btn btn-g" data-add>➕ Tambah Materi</button></div>'}`;
     },
     media() {
@@ -84,6 +88,33 @@
       if (item) { Object.assign(list.find((x) => x.id === item.id), { title, body }); N.audit('edit_materi', title); }
       else { list.push({ id: N.uid(), title, body, added: Date.now() }); N.audit('tambah_materi', title); }
       N.db.set('materi', list); m.close(); N.toast('Materi disimpan.'); draw();
+    });
+  };
+
+  const formCerita = (item) => {
+    const current = item ? { ...N.storyDefaults, ...item } : { ...N.storyDefaults };
+    const fields = [
+      ['title', 'Nama cerita'],
+      ['step1Label', 'Judul langkah 1'], ['step1Text', 'Kalimat langkah 1'],
+      ['step2Label', 'Judul langkah 2'], ['step2Text', 'Kalimat langkah 2'],
+      ['step3Label', 'Judul langkah 3'], ['step3Text', 'Kalimat pertanyaan untuk siswa'],
+      ['successTitle', 'Judul saat berhasil'], ['successText', 'Pesan keberhasilan'],
+      ['successEncouragement', 'Kalimat penyemangat']
+    ];
+    const templates = ['{count} = jumlah benda', '{item} = nama benda sesuai tema', '{children} = jumlah anak', '{answer} = hasil pembagian'];
+    const controls = fields.map(([key, label]) => `<label for="story-${key}">${N.esc(label)}${key.includes('Text') || key === 'successText' || key === 'successEncouragement' ? `<textarea id="story-${key}" name="${key}" maxlength="240" required>${N.esc(current[key])}</textarea>` : `<input id="story-${key}" name="${key}" maxlength="100" required value="${N.esc(current[key])}">`}</label>`).join('');
+    const m = N.modal(`<h3>${item ? '✏️ Edit Cerita' : '➕ Tambah Cerita Baru'}</h3><form id="story-content-form" class="admin-modal-form"><p class="question-form-help">Atur nama cerita, kalimat tiap langkah, dan ucapan saat siswa menjawab dengan benar. Kata dalam kurung kurawal akan otomatis diganti sesuai soal dan tema.</p><div class="story-content-fields">${controls}</div><div class="story-content-tokens"><b>Kata yang bisa dipakai:</b>${templates.map((value) => `<span>${N.esc(value)}</span>`).join('')}</div><div id="story-content-error" aria-live="polite"></div><div class="row end"><button type="button" class="btn" data-c>Batal</button><button class="btn btn-g">${item ? 'Simpan Perubahan' : 'Tambah Cerita'}</button></div></form>`);
+    const form = N.$('#story-content-form', m.el);
+    N.$('[data-c]', m.el).addEventListener('click', m.close);
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(fields.map(([key]) => [key, form.elements[key].value.trim()]));
+      if (Object.values(data).some((value) => !value)) { N.$('#story-content-error', m.el).innerHTML = '<div class="err">Lengkapi semua kalimat cerita.</div>'; return; }
+      const list = N.storyLibrary();
+      if (item) { Object.assign(list.find((story) => N.sameId(story.id, item.id)), data); N.audit('edit_cerita', data.title); }
+      else { list.push({ id: N.uid(), ...data, added: Date.now() }); N.audit('tambah_cerita', data.title); }
+      N.db.set('storyLibrary', list);
+      m.close(); N.toast(item ? 'Cerita berhasil diperbarui.' : 'Cerita baru berhasil ditambahkan.'); draw();
     });
   };
 
@@ -237,6 +268,16 @@
     const find = (id) => N.db.get(src, []).find((x) => x.id === id);
     const add = N.$('[data-add]', p); if (add) add.addEventListener('click', () => forms[tab]());
     const addAdmin = N.$('[data-add-admin]', p); if (addAdmin) addAdmin.addEventListener('click', () => formAdmin());
+    const addStory = N.$('[data-add-story]', p); if (addStory) addStory.addEventListener('click', () => formCerita());
+    N.$$('[data-story-edit]', p).forEach((button) => button.addEventListener('click', () => formCerita(N.storyLibrary().find((story) => N.sameId(story.id, button.dataset.storyEdit)))));
+    N.$$('[data-story-del]', p).forEach((button) => button.addEventListener('click', async () => {
+      const list = N.storyLibrary();
+      if (list.length < 2) return N.toast('Minimal harus ada satu cerita.', 'bad');
+      const story = list.find((item) => N.sameId(item.id, button.dataset.storyDel));
+      if (!(await N.confirm(`Hapus cerita "${story.title}"?`))) return;
+      N.db.set('storyLibrary', list.filter((item) => !N.sameId(item.id, button.dataset.storyDel)));
+      N.audit('hapus_cerita', story.title); N.toast('Cerita dihapus.'); draw();
+    }));
     N.$$('[data-edit]', p).forEach((b) => b.addEventListener('click', () => forms[tab](find(b.dataset.edit))));
     N.$$('[data-view]', p).forEach((b) => b.addEventListener('click', () => N.mediaUI.openPreview(find(b.dataset.view))));
     if (tab === 'materi' || tab === 'media' || tab === 'soal') N.$$('[data-del]', p).forEach((b) => b.addEventListener('click', () => remove(b.dataset.del)));
@@ -269,8 +310,8 @@
             if (id === 'bagi' && (!second || first % second !== 0)) throw new Error('Untuk contoh pembagian, angka kedua harus lebih dari 0 dan hasilnya bilangan bulat.');
             return { id, label, sign, icon, a: first, b: second, story };
           });
-          const config = { ...N.learningConfig(), appName: form.elements.appName.value.trim(), subjectName: form.elements.subjectName.value.trim(), gradeName: form.elements.gradeName.value.trim(), kkm: Number(form.elements.kkm.value), evalCount: Number(form.elements.evalCount.value), themes, operations };
-          if (!config.appName || !config.subjectName || !config.gradeName || !themes.length || config.kkm < 0 || config.kkm > 100 || config.evalCount < 1 || config.evalCount > 100) throw new Error('Lengkapi semua pengaturan dengan nilai yang sesuai.');
+          const config = { ...N.learningConfig(), appName: form.elements.appName.value.trim(), mediaLabel: form.elements.mediaLabel.value.trim(), homeSlogan: form.elements.homeSlogan.value.trim(), subjectName: form.elements.subjectName.value.trim(), gradeName: form.elements.gradeName.value.trim(), kkm: Number(form.elements.kkm.value), evalCount: Number(form.elements.evalCount.value), themes, operations };
+          if (!config.appName || !config.mediaLabel || !config.homeSlogan || !config.subjectName || !config.gradeName || !themes.length || config.kkm < 0 || config.kkm > 100 || config.evalCount < 1 || config.evalCount > 100) throw new Error('Lengkapi semua pengaturan dengan nilai yang sesuai.');
           N.db.set('learningConfig', config); N.applyLearningConfig(); N.audit('ubah_pengaturan_belajar', `${config.gradeName}, ${themes.length} tema`);
           N.toast('Pengaturan tema, kelas, dan materi belajar berhasil disimpan.'); N.render();
         } catch (error) { err.innerHTML = `<div class="err">${N.esc(error.message)}</div>`; }
