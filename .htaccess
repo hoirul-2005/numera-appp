@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(css|js)/(.*)$ public/$1/$2 [L]
+    RewriteRule ^ public/index.php [L]
+</IfModule>

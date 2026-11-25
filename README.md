@@ -1,48 +1,29 @@
-# NUMERA (Pecahan Senilai)
+# NUMERA — Media Belajar
 
-Media pembelajaran matematika interaktif untuk siswa kelas IV SD/MI. HTML5 + CSS3 + JavaScript ES6+ murni, **tanpa backend, tanpa build**.
+NUMERA kini memakai Laravel sebagai aplikasi web dan Blade sebagai template halaman. CSS dan JavaScript interaktif tetap digunakan sebagai aset publik agar tampilan dan kegiatan belajar yang sudah ada tetap sama.
 
-## Cara menjalankan
-1. Ekstrak ZIP, lalu **klik dua kali `index.html`** (atau buka lewat server statis apa pun, mis. `python3 -m http.server`).
-2. Butuh internet hanya untuk font Google (Fredoka/Nunito) dan video YouTube; selain itu berjalan offline.
+## Kebutuhan
 
-## Akun demo (hapus/ubah pada penggunaan nyata)
-| Peran | Username | Password | Catatan |
-|-------|----------|----------|---------|
-| Siswa | `siswa`  | `Siswa#123` | Siswa baru juga bisa mendaftar sendiri |
-| Guru  | `guru`   | `Guru#2026` | Wajib verifikasi 2 langkah (MFA). Pada mode demo, kode 6 digit ditampilkan di layar |
+- PHP 8.2 atau lebih baru
+- Composer 2
+- Ekstensi PHP umum untuk Laravel (ctype, curl, fileinfo, mbstring, openssl, PDO, tokenizer, xml)
+- Apache dengan `mod_rewrite` aktif saat dijalankan melalui XAMPP
 
-## Fitur
-- **Beranda, Cerita "Ayo, Berbagi Pizza!"** (pertanyaan pemantik + pop-up kesimpulan), **Materi** (arsiran 1/2, 2/4, 3/6 + pizza interaktif), **Cara Menghitung** (simulasi bertahap, pembilang kuning, penyebut biru, panah animasi).
-- **Perpustakaan File & Video** (Materi) dan **Video Pembelajaran**: pratinjau PDF/gambar/teks, pemutar video dengan **Mode Proyektor** (layar penuh, tombol besar: putar/jeda, mundur/maju 10 dtk, geser, volume, kecepatan). Pintasan: Spasi, ← →.
-- **Ayo Berlatih** & **Evaluasi** (login wajib): umpan balik suara + konfeti. Evaluasi 5 soal, `Nilai = (Benar / 5) * 100`, tuntas bila nilai ≥ 75 (ubah `N.KKM` di `js/core.js`).
-- **Riwayat kuis**: lihat, hapus, ekspor CSV / Excel / PDF (siswa: milik sendiri; guru: semua).
-- **Dashboard Guru**: ringkasan, CMS Materi, File & Video (unggah **format apa pun** atau tautan/YouTube), Bank Soal (tambah/edit/hapus), Rekap Nilai + ekspor (CSV/Excel/PDF), Riwayat, Audit Log.
-- Tombol **🔊** (suara) dan **🔎 A+** (teks besar untuk proyektor) di header.
+## Menjalankan dengan XAMPP
 
-## Keamanan (simulasi sisi klien)
-- Password di-hash **PBKDF2-SHA256 (100.000 iterasi) + salt unik** (simulasi bcrypt/Argon2).
-- **Rate limit**: 5 kali gagal → akun terkunci 15 menit. **Pesan error seragam** ("Username atau password salah.").
-- **MFA** khusus guru (kode 6 digit berbasis waktu, simulasi TOTP).
-- **RBAC**: rute dijaga (`js/app.js`); siswa tidak bisa membuka Dashboard Guru atau menghapus riwayat orang lain.
-- **Sesi**: token acak, kedaluwarsa setelah 60 menit tidak aktif. *Catatan jujur:* JavaScript di browser **tidak dapat membuat cookie HttpOnly** (hanya server yang bisa), jadi sesi disimpan di `sessionStorage`. Saat memakai backend nyata, ganti dengan `Set-Cookie: HttpOnly; Secure; SameSite=Strict` dan verifikasi di server.
-- **Audit log** aktivitas guru/akses ditolak; ekspor CSV dilindungi dari formula injection; semua input di-escape (anti-XSS).
-- Karena semuanya di sisi klien, ini **bukan pengganti keamanan server**.
+1. Dari folder proyek, jalankan `composer install`.
+2. Salin `.env.example` menjadi `.env` jika berkas `.env` belum tersedia.
+3. Jalankan `php artisan key:generate` jika `APP_KEY` masih kosong.
+4. Arahkan browser ke `http://localhost/media_belajar/`.
 
-## Struktur
-```
-index.html
-css/style.css
-js/core.js       namespace, util, localStorage (N.db), IndexedDB (N.media), audit
-js/data.js       data awal materi & bank soal
-js/security.js   hash, rate limit, MFA, sesi, register
-js/export.js     CSV / Excel / PDF (cetak)
-js/ui.js         toast, modal, suara, konfeti, pizza SVG, pecahan berwarna
-js/views/*.js    halaman (home, story, materi, video, hitung, quiz, history, auth, admin, media)
-js/app.js        router + guard RBAC + inisialisasi
-```
+Untuk server lain, jadikan folder `public/` sebagai document root sesuai praktik Laravel. Berkas `index.php` dan `.htaccess` di akar proyek hanya menjadi pintu masuk praktis untuk instalasi NUMERA di subfolder htdocs XAMPP.
 
-## Catatan
-- Data tersimpan **per browser/perangkat** (localStorage + IndexedDB). Untuk berbagi antar perangkat dibutuhkan backend.
-- Video yang diunggah disimpan di IndexedDB; peramban memutar mp4/webm/mov dengan baik, sedangkan .mkv/.avi tertentu mungkin tidak didukung peramban (aplikasi menampilkan tombol unduh).
-- Reset semua data: hapus data situs di pengaturan browser.
+## Struktur aplikasi
+
+- `routes/web.php` — rute Laravel.
+- `resources/views/app.blade.php` — kerangka halaman Blade.
+- `public/css` dan `public/js` — stylesheet dan JavaScript interaktif NUMERA.
+- `app/Providers` — provider aplikasi Laravel.
+- `config` dan `bootstrap` — konfigurasi serta bootstrap Laravel.
+
+Interaksi belajar, navigasi berbasis hash, dan penyimpanan konten yang sudah ada masih dijalankan di browser. Rute Laravel saat ini menyajikan kerangka Blade; pemindahan penyimpanan dan autentikasi dari browser ke database/server merupakan pekerjaan backend tersendiri.
