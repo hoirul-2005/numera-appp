@@ -99,6 +99,12 @@
 .nav { flex: 1; flex-wrap: wrap; justify-content: flex-end; gap: 10px; font-size: .88rem; }
 .nav .btn { padding-inline: 12px; }
 
+html { font-size: 100%; }
+html[data-font-scale="small"] { font-size: 88.8889%; }
+html[data-font-scale="normal"] { font-size: 100%; }
+html[data-font-scale="large"] { font-size: 116.6667%; }
+body { font-size: 1.125rem; }
+
 .mobile-menu {
   display: none;
   padding: 7px 11px;
@@ -110,22 +116,38 @@
   cursor: pointer;
 }
 
-.nav .font-control {
-  min-width: 40px;
-  padding: 7px 10px;
-  border: 2px solid #d7e4f2;
-  border-radius: 14px;
-  background: #fff;
-  color: var(--ink);
-  font: 700 1rem/1 "Fredoka", system-ui, sans-serif;
-  cursor: pointer;
+.font-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d7e4f2;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .72);
 }
 
-.nav .font-control:hover { background: #f0eaff; border-color: var(--grape); }
+.font-tools-label {
+  padding-inline: 7px 3px;
+  color: #65647f;
+  font-size: .78rem;
+  font-weight: 800;
+}
 
-body[data-font-scale="small"] { font-size: 16px; }
-body[data-font-scale="normal"] { font-size: 18px; }
-body[data-font-scale="large"] { font-size: 21px; }
+.nav .font-control {
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: 700 .9rem/1 "Fredoka", system-ui, sans-serif;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, transform .15s ease;
+}
+
+.nav .font-control:hover:not(:disabled) { background: #f0eaff; color: var(--grape-deep); transform: translateY(-1px); }
+.nav .font-control:disabled { color: #a8a7b7; cursor: default; }
 
 .math-page {
   width: min(100% - 32px, 980px);
